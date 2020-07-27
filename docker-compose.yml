@@ -1,0 +1,34 @@
+version: '3.1'
+services:
+  db:
+    restart: always
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: 24956501
+    ports:
+      - 3306:3306
+    volumes:
+      - ./docker/database/data:/var/lib/mysql
+      - ./docker/database/config:/etc/mysql/conf.d
+  redis:
+      restart: always
+      image: redis
+      container_name: redis
+      command: redis-server --requirepass yunmai365
+      ports:
+        - 6379:6379
+  nginx:
+      restart: always
+      image: nginx
+      ports:
+        - 80:80
+        - 443:443
+  scrapy:
+      tty: true
+      build:
+        context: ./docker
+        dockerfile: python
+      volumes:
+        - ./space:/data/space
+        - .:/app
