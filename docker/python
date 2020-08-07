@@ -3,5 +3,5 @@ FROM python:3.8
 RUN apt-get update
 RUN apt-get install -y supervisor
 RUN apt-get install -y iputils-ping
-CMD pip install -r /app/requirements
-CMD update-ca-certificates
+RUN update-ca-certificates
+CMD pip install -r app/requirements && python /app/launcher.py && tail -f /dev/null
