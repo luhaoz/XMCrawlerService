@@ -1,2 +1,3 @@
 /docker/database/data
 /.idea
+__pycache__

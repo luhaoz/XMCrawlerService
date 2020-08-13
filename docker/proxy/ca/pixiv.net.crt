@@ -1,0 +1,93 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 16 (0x10)
+        Signature Algorithm: sha256WithRSAEncryption
+        Issuer: C=CN, ST=Shanghai, L=Shanghai, O=Mashiro LLC, CN=Mashiro Internet Fake Authority CA
+        Validity
+            Not Before: Mar  7 04:09:06 2020 GMT
+            Not After : Mar  5 04:09:06 2030 GMT
+        Subject: C=CN, ST=Shanghai, O=Mashiro LLC, CN=SNI\xE4\xBB\xA3\xE7\x90\x86\xE9\x80\x9A\xE7\x94\xA8\xE8\xAF\x81\xE4\xB9\xA6\xEF\xBC\x88https://2heng.xin/2017/09/19/pixiv/\xEF\xBC\x89
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                RSA Public-Key: (2048 bit)
+                Modulus:
+                    00:ce:00:18:cc:64:70:ac:59:b0:45:9e:c3:ee:9e:
+                    9b:b2:56:59:43:aa:b7:98:6b:bb:86:86:c9:bb:b6:
+                    ed:54:b8:56:de:ec:18:06:62:59:27:3b:d2:16:4a:
+                    8a:86:ad:40:2b:69:6a:dc:21:12:4b:ca:fd:85:a8:
+                    01:dd:ec:2a:20:a2:6e:b0:c2:a7:79:88:f9:f4:34:
+                    95:fb:85:bf:f0:c7:1d:57:29:f8:a5:62:e3:b6:9e:
+                    52:f7:42:2a:0c:5a:5c:6d:b4:30:51:4e:c1:40:57:
+                    c6:58:57:18:47:9c:59:9d:b7:38:bb:cc:0c:68:aa:
+                    6c:68:76:be:6f:84:83:12:ef:60:2d:11:61:d8:01:
+                    f0:09:85:8c:80:fa:f0:f6:23:95:c7:97:c1:86:53:
+                    97:b5:d5:dc:5b:a8:f8:22:49:0a:70:2d:92:77:17:
+                    41:fd:0e:ba:5b:a7:ce:8f:60:a1:fc:5a:a7:87:19:
+                    1f:12:f6:c8:b2:32:f4:a8:22:72:ec:97:cc:98:48:
+                    24:b3:4d:c4:83:7b:9e:1d:15:62:63:37:f5:b6:0c:
+                    4f:b5:97:33:87:1f:67:cd:0b:bb:71:7b:38:60:c5:
+                    4f:2f:ad:40:44:0a:8e:af:0c:6c:5a:f4:00:6d:94:
+                    a3:f3:ae:f2:eb:5e:14:68:0a:03:5b:c7:89:09:d0:
+                    f9:bd
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Subject Key Identifier: 
+                4C:B9:F4:49:C1:82:B5:1E:3A:81:63:FA:0C:15:78:A5:F7:4A:AF:FF
+            X509v3 Authority Key Identifier: 
+                keyid:3F:6C:37:71:8F:74:1B:28:5A:0F:C2:29:C1:2B:05:7E:D1:24:D4:54
+
+            X509v3 Basic Constraints: 
+                CA:FALSE
+            X509v3 Key Usage: 
+                Digital Signature, Key Encipherment
+            X509v3 Subject Alternative Name: 
+                DNS:*.pixiv.net, DNS:pixiv.net, DNS:*.secure.pixiv.net, DNS:pixivision.net, DNS:*.pixivision.net, DNS:pixiv.me, DNS:*.pixiv.me, DNS:pximg.net, DNS:*.pximg.net, DNS:pixivsketch.net, DNS:*.pixivsketch.net, DNS:public-api.secure.pixiv.net, DNS:wikipedia.org, DNS:*.wikipedia.org, DNS:m.wikipedia.org, DNS:*.m.wikipedia.org, DNS:google.com, DNS:*.google.com, DNS:steamcommunity.com, DNS:*.steamcommunity.com, DNS:steampowered.com, DNS:*.steampowered.com, DNS:archiveofourown.org, DNS:*.archiveofourown.org
+    Signature Algorithm: sha256WithRSAEncryption
+         6f:81:35:0e:53:9e:85:24:19:91:45:2d:9f:5b:4d:f1:bb:8e:
+         da:bd:27:c8:26:aa:ed:76:fa:cd:c1:08:de:f8:0a:26:49:c7:
+         25:67:b9:6d:47:25:a0:0e:5d:99:7f:d9:d8:49:2d:69:98:ab:
+         5d:6a:3e:db:a9:84:87:a2:83:c5:da:59:24:21:3d:c5:2a:73:
+         c6:03:7c:07:61:42:df:2b:ea:60:b9:6b:be:63:54:55:f3:2b:
+         3a:43:c9:88:44:4e:19:25:e0:d3:ab:9c:94:df:74:a0:dd:30:
+         5f:a1:7d:e5:40:47:10:3f:02:4f:30:b1:b9:1b:d9:03:27:b6:
+         51:f9:d2:7a:17:a7:0d:75:be:57:54:91:90:f5:8c:58:db:57:
+         e4:cd:b4:cf:17:6f:76:d2:9a:fd:b9:d3:ce:a2:3d:b1:12:df:
+         c6:18:c4:79:6c:4e:53:67:9c:19:92:9b:94:7a:dd:62:84:e3:
+         bf:5e:57:b3:61:ae:80:ca:14:ae:b6:2e:62:2a:2b:d2:aa:73:
+         c9:f4:51:e5:79:f5:86:2b:ed:4e:0f:fc:a7:c4:d9:19:72:29:
+         6a:1c:8d:c0:8c:b5:11:e7:bf:82:7e:fc:fb:d2:70:46:bc:4a:
+         d4:67:c2:d5:c3:2d:ca:bf:c5:4b:a1:33:70:ad:92:52:eb:87:
+         d1:22:45:3f
+-----BEGIN CERTIFICATE-----
+MIIFdjCCBF6gAwIBAgIBEDANBgkqhkiG9w0BAQsFADB2MQswCQYDVQQGEwJDTjER
+MA8GA1UECBMIU2hhbmdoYWkxETAPBgNVBAcTCFNoYW5naGFpMRQwEgYDVQQKEwtN
+YXNoaXJvIExMQzErMCkGA1UEAxMiTWFzaGlybyBJbnRlcm5ldCBGYWtlIEF1dGhv
+cml0eSBDQTAeFw0yMDAzMDcwNDA5MDZaFw0zMDAzMDUwNDA5MDZaMH8xCzAJBgNV
+BAYTAkNOMREwDwYDVQQIEwhTaGFuZ2hhaTEUMBIGA1UEChMLTWFzaGlybyBMTEMx
+RzBFBgNVBAMUPlNOSeS7o+eQhumAmueUqOivgeS5pu+8iGh0dHBzOi8vMmhlbmcu
+eGluLzIwMTcvMDkvMTkvcGl4aXYv77yJMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A
+MIIBCgKCAQEAzgAYzGRwrFmwRZ7D7p6bslZZQ6q3mGu7hobJu7btVLhW3uwYBmJZ
+JzvSFkqKhq1AK2lq3CESS8r9hagB3ewqIKJusMKneYj59DSV+4W/8McdVyn4pWLj
+tp5S90IqDFpcbbQwUU7BQFfGWFcYR5xZnbc4u8wMaKpsaHa+b4SDEu9gLRFh2AHw
+CYWMgPrw9iOVx5fBhlOXtdXcW6j4IkkKcC2SdxdB/Q66W6fOj2Ch/FqnhxkfEvbI
+sjL0qCJy7JfMmEgks03Eg3ueHRViYzf1tgxPtZczhx9nzQu7cXs4YMVPL61ARAqO
+rwxsWvQAbZSj867y614UaAoDW8eJCdD5vQIDAQABo4ICBDCCAgAwHQYDVR0OBBYE
+FEy59EnBgrUeOoFj+gwVeKX3Sq//MB8GA1UdIwQYMBaAFD9sN3GPdBsoWg/CKcEr
+BX7RJNRUMAkGA1UdEwQCMAAwCwYDVR0PBAQDAgWgMIIBpAYDVR0RBIIBmzCCAZeC
+CyoucGl4aXYubmV0gglwaXhpdi5uZXSCEiouc2VjdXJlLnBpeGl2Lm5ldIIOcGl4
+aXZpc2lvbi5uZXSCECoucGl4aXZpc2lvbi5uZXSCCHBpeGl2Lm1lggoqLnBpeGl2
+Lm1lgglweGltZy5uZXSCCyoucHhpbWcubmV0gg9waXhpdnNrZXRjaC5uZXSCESou
+cGl4aXZza2V0Y2gubmV0ghtwdWJsaWMtYXBpLnNlY3VyZS5waXhpdi5uZXSCDXdp
+a2lwZWRpYS5vcmeCDyoud2lraXBlZGlhLm9yZ4IPbS53aWtpcGVkaWEub3JnghEq
+Lm0ud2lraXBlZGlhLm9yZ4IKZ29vZ2xlLmNvbYIMKi5nb29nbGUuY29tghJzdGVh
+bWNvbW11bml0eS5jb22CFCouc3RlYW1jb21tdW5pdHkuY29tghBzdGVhbXBvd2Vy
+ZWQuY29tghIqLnN0ZWFtcG93ZXJlZC5jb22CE2FyY2hpdmVvZm91cm93bi5vcmeC
+FSouYXJjaGl2ZW9mb3Vyb3duLm9yZzANBgkqhkiG9w0BAQsFAAOCAQEAb4E1DlOe
+hSQZkUUtn1tN8buO2r0nyCaq7Xb6zcEI3vgKJknHJWe5bUcloA5dmX/Z2EktaZir
+XWo+26mEh6KDxdpZJCE9xSpzxgN8B2FC3yvqYLlrvmNUVfMrOkPJiEROGSXg06uc
+lN90oN0wX6F95UBHED8CTzCxuRvZAye2UfnSehenDXW+V1SRkPWMWNtX5M20zxdv
+dtKa/bnTzqI9sRLfxhjEeWxOU2ecGZKblHrdYoTjv15Xs2GugMoUrrYuYior0qpz
+yfRR5Xn1hivtTg/8p8TZGXIpahyNwIy1Eee/gn78+9JwRrxK1GfC1cMtyr/FS6Ez
+cK2SUuuH0SJFPw==
+-----END CERTIFICATE-----
