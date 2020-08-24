@@ -10,13 +10,13 @@ from .database import CoreDataSpace, DataSpaces
 
 
 class CoreSpider(Spider, ABC):
-    spider_log: Logger = None
+    _logger: Logger = None
     __arguments = None
 
     def __init__(self):
         Spider.__init__(self, name=self.__class__.script_name())
-
-        # dispatcher.connect(self.spider_closed, signals.spider_closed)
+        self.__class__._logger = logger(self.__class__.script_name())
+        dispatcher.connect(self.spider_closed, signals.spider_closed)
 
     @classmethod
     def arguments(cls, parser):
@@ -30,5 +30,5 @@ class CoreSpider(Spider, ABC):
     def settings(cls):
         return {}
 
-    # def spider_closed(self, spider):
-    #     self.__class__.spider_log.info("爬虫结束")
+    def spider_closed(self, spider):
+        self.__class__._logger.info("爬虫结束")

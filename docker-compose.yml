@@ -45,6 +45,7 @@ services:
         dockerfile: python
       volumes:
         - ./space:/data/space
+        - ./runtime:/data/runtime
         - .:/app
         - ./docker/scrapy/ca-certificates:/usr/local/share/ca-certificates
         - ./docker/scrapy/hosts:/etc/hosts

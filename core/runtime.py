@@ -5,8 +5,7 @@ import json
 
 
 class Config(object):
-    runtime = os.path.join("runtime")
-    notepad = "notepad.exe"
+    runtime = os.path.join("/", "data", "runtime")
 
 
 class Parameter(object):
@@ -32,8 +31,8 @@ class Space(object):
     def parameter(self, file):
         _space_file = os.path.join(self._space, file)
         if os.path.isfile(_space_file) is False:
-            open(_space_file, 'w')
-            subprocess.call([Config.notepad, _space_file])
+            with open(_space_file, 'w') as _init:
+                _init.write(json.dumps({}))
         with open(_space_file, 'r') as _parameter:
             return Parameter(_parameter.read())
 
