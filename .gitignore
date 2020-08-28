@@ -1,3 +1,4 @@
 /docker/database/data
 /.idea
 __pycache__
+/space

@@ -1,62 +1,128 @@
-from sqlalchemy import create_engine, MetaData, Table, Column, Integer, Date, String, Float, Index, Text
+from sqlalchemy import create_engine, MetaData, Table, Column, Integer, Date, String, Float, Index, Text, Boolean
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.dialects.mysql import insert
+from sqlalchemy import MetaData
+import hashlib
 
-Base = declarative_base()
+metadata = MetaData()
+
+AuthorTable = Table(
+    "authors",
+    metadata,
+    Column("primary", String(255), nullable=False, primary_key=True),
+    Column("id", String(255), nullable=False),
+    Index("id_index", "id"),
+    Column("name", String(255), nullable=False),
+    Index("name_index", "name"),
+    Column("is_del", Boolean, nullable=False, default=False),
+    Index("is_del_index", "is_del"),
+
+)
+
+TagTable = Table(
+    "tags",
+    metadata,
+    Column("primary", String(255), nullable=False, primary_key=True),
+    Column("id", String(255), nullable=False),
+    Index("id_index", "id"),
+    Column("work_id", String(255), nullable=False),
+    Index("work_id_index", "work_id"),
+    Column("name", String(255), nullable=False),
+    Index("name_index", "name"),
+    Column("is_del", Boolean, nullable=False, default=False),
+    Index("is_del_index", "is_del"),
+)
+
+WorkTable = Table(
+    "works",
+    metadata,
+    Column("primary", String(255), nullable=False, primary_key=True),
+    Column("id", String(255), nullable=False),
+    Index("id_index", "id"),
+    Column("author_id", String(255), nullable=False),
+    Index("author_id_index", "author_id"),
+
+    Column("name", String(255), nullable=False),
+    Index("name_index", "name"),
+
+    Column("description", Text, nullable=False),
+
+    Column("upload_date", Integer, nullable=False),
+    Column("count", Integer, nullable=False),
+
+    Column("type", String(255), nullable=False),
+    Index("type_index", "type"),
+
+    Column("is_del", Boolean, nullable=False, default=False),
+    Index("is_del_index", "is_del"),
+)
+
+IllustTable = Table(
+    "illusts",
+    metadata,
+    Column("primary", String(255), nullable=False, primary_key=True),
+    Column("id", String(255), nullable=False),
+    Index("id_index", "id"),
+
+    Column("work_id", String(255), nullable=False),
+    Index("work_id_index", "work_id"),
+
+    Column("source", String(255), nullable=False),
+    Column("path", String(255), nullable=False),
+
+    Column("is_del", Boolean, nullable=False, default=False),
+    Index("is_del_index", "is_del"),
+)
+
+NovelTable = Table(
+    "novels",
+    metadata,
+    Column("primary", String(255), nullable=False, primary_key=True),
+    Column("id", String(255), nullable=False),
+    Index("id_index", "id"),
+
+    Column("work_id", String(255), nullable=False),
+    Index("work_id_index", "work_id"),
+
+    Column("content", Text, nullable=False),
+    Column("path", String(255), nullable=False),
+
+    Column("is_del", Boolean, nullable=False, default=False),
+    Index("is_del_index", "is_del"),
+)
+
+# _db_host = "localhost"
+_db_host = "172.16.238.10"
 
 
-class Illust(Base):
-    __tablename__ = 'illusts'
-    __table_args__ = (
-        Index('illusts_illust_id', 'illust_id'),
-        Index('illust_type', 'type'),
-    )
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, nullable=False)
-    illust_id = Column(String, nullable=False)
-    author_id = Column(String, nullable=False)
-    count = Column(Integer, nullable=False)
-    upload_date = Column(Integer, nullable=False)
-    description = Column(String, nullable=False)
-    type = Column(String, nullable=False)
+class Database(object):
+    _engine = None
+    _session = None
 
+    @classmethod
+    def engine(cls):
+        if cls._engine is None:
+            cls._engine = create_engine("mysql+pymysql://root:scrapy_db@%s:3306" % _db_host)
+        return cls._engine
 
-class Author(Base):
-    __tablename__ = 'authors'
-    __table_args__ = (
-        Index('author_id', 'author_id'),
-    )
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    author_id = Column(String, nullable=False)
-    name = Column(String, nullable=False)
+    @classmethod
+    def init(cls, database_name):
+        engine_default = cls.engine()
+        conn = engine_default.connect()
+        conn.execute("COMMIT")
+        conn.execute("CREATE DATABASE IF NOT EXISTS %s" % database_name)
+        conn.close()
+        cls._engine = create_engine("mysql+pymysql://root:scrapy_db@%s:3306/%s" % (_db_host, database_name))
+        cls.create_table()
 
+    @classmethod
+    def create_table(cls):
+        metadata.create_all(cls.engine())
 
-class Tag(Base):
-    __tablename__ = 'tags'
-    __table_args__ = (
-        Index('name', 'name'),
-    )
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    illust_id = Column(String, nullable=False)
-    name = Column(String, nullable=False)
-
-
-class ResourceIllust(Base):
-    __tablename__ = 'resources_illust'
-    __table_args__ = (
-        Index('resources_illust_illust_id', 'illust_id'),
-    )
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    illust_id = Column(String, nullable=False)
-    source = Column(String, nullable=False)
-    path = Column(String, nullable=False)
-
-
-class ResourceNovels(Base):
-    __tablename__ = 'resources_novel'
-    __table_args__ = (
-        Index('resources_novel_illust_id', 'illust_id'),
-    )
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    illust_id = Column(String, nullable=False)
-    content = Column(Text, nullable=False)
-    path = Column(String, nullable=False)
+    @classmethod
+    def session(cls):
+        if cls._session is None:
+            Session = sessionmaker(bind=cls.engine())
+            cls._session = Session()
+        return cls._session

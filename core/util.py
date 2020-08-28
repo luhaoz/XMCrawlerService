@@ -3,8 +3,13 @@ import sys
 import inspect
 import os
 from urllib import parse
+import hashlib
 
 
+def md5(text):
+    hashlib_md5 = hashlib.md5()
+    hashlib_md5.update(text.encode(encoding='utf-8'))
+    return hashlib_md5.hexdigest()
 
 
 def list_chunks(list_data, size):

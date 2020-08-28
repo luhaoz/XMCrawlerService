@@ -21,6 +21,8 @@ class TaskMetaItem(CoreItem):
     author = scrapy.Field()
     upload_date = scrapy.Field()
     type = scrapy.Field()
+    space = scrapy.Field()
+    count = scrapy.Field()
 
 
 class TaskWorkItem(TaskMetaItem):
@@ -28,55 +30,12 @@ class TaskWorkItem(TaskMetaItem):
 
 
 class SourceItem(CoreItem):
-    type = scrapy.Field()
-    url = scrapy.Field()
     sources = scrapy.Field()
 
 
-class TaskNovelItem(TaskMetaItem):
+class TaskNovelItem(TaskWorkItem):
     content = scrapy.Field()
 
 
 class TaskIllustItem(TaskMetaItem):
-    count = scrapy.Field()
-
-#
-#
-# class TaskMetaItem(CoreItem):
-#     id = scrapy.Field()
-#     title = scrapy.Field()
-#     tags = scrapy.Field()
-#     description = scrapy.Field()
-#     author = scrapy.Field()
-#     upload_date = scrapy.Field()
-#     count = scrapy.Field()
-#     type = scrapy.Field()
-#
-#
-# class TaskMetaResultItem(TaskMetaItem):
-#     results = scrapy.Field()
-#
-#
-# class DatabaseIllustItem(TaskMetaItem):
-#     results = scrapy.Field()
-#
-#
-# class DatabaseNovelItem(DatabaseIllustItem):
-#     content = scrapy.Field()
-#     path = scrapy.Field()
-#
-#
-# class TaskItem(TaskMetaItem):
-#     source = scrapy.Field()
-#     space = scrapy.Field()
-#
-#
-# class TaskNovelItem(TaskItem):
-#     content = scrapy.Field()
-#     path = scrapy.Field()
-#
-#
-# class SourceItem(CoreItem):
-#     type = scrapy.Field()
-#     url = scrapy.Field()
-#     sources = scrapy.Field()
+    pass

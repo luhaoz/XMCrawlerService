@@ -39,6 +39,8 @@ services:
           ipv4_address: 172.16.238.20
 
   scrapy:
+      depends_on:
+        - db
       tty: true
       build:
         context: ./docker

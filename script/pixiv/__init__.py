@@ -1,3 +1,24 @@
+from core.util import path_format
+import os
+
+
+def author_space(item):
+    author_path = "%s_%s" % (item['author']['name'], item['author']['id'])
+    return path_format(author_path)
+
+
+def item_space(item):
+    illust_path = "%s_%s" % (item['title'], item['id'])
+    return path_format(illust_path)
+
+
+def file_space(item):
+    return os.path.join(
+        author_space(item),
+        item_space(item),
+    )
+
+
 def novel_html(title, novel):
     _html = '''
         <html>
