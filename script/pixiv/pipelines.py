@@ -27,16 +27,13 @@ class TaskPipeline(FilesPipeline):
         _spider: CoreSpider = info.spider
         _spider._logger.info("Item : %s" % item)
 
-        try:
-            for resource in item['source']['sources']:
-                yield Request(resource, meta={
-                    'item': item,
-                    'resource': resource
-                }, headers={
-                    'Referer': 'https://www.pixiv.net/artworks/%s' % item['id']
-                })
-        except :
-            print(item)
+        for resource in item['source']['sources']:
+            yield Request(resource, meta={
+                'item': item,
+                'resource': resource
+            }, headers={
+                'Referer': 'https://www.pixiv.net/artworks/%s' % item['id']
+            })
 
     def file_path(self, request, response=None, info=None):
         item = request.meta['item']
@@ -77,7 +74,7 @@ class TaskPipeline(FilesPipeline):
                 name=item['author']['name']
             )
             duplicate_key_session = insert_session.on_duplicate_key_update(
-                is_del=True
+                is_del=False,
             )
             _connect.execute(duplicate_key_session)
 
@@ -94,7 +91,7 @@ class TaskPipeline(FilesPipeline):
                 type=item['type']
             )
             duplicate_key_session = insert_session.on_duplicate_key_update(
-                is_del=True,
+                is_del=False,
                 upload_date=_time,
             )
             _connect.execute(duplicate_key_session)
@@ -107,7 +104,7 @@ class TaskPipeline(FilesPipeline):
                     name=_tag_name,
                 )
                 duplicate_key_session = insert_session.on_duplicate_key_update(
-                    is_del=True,
+                    is_del=False,
                 )
                 _connect.execute(duplicate_key_session)
 
@@ -124,29 +121,29 @@ class TaskPipeline(FilesPipeline):
                     )
                 )
                 duplicate_key_session = insert_session.on_duplicate_key_update(
-                    is_del=True,
+                    is_del=False,
                 )
                 _connect.execute(duplicate_key_session)
 
-        if isinstance(item, TaskNovelItem):
-            content = os.path.join(space, item['space'], 'novel.html')
-            with open(content, 'w', encoding='utf-8') as meta:
-                meta.write(novel_html(item['title'], item['content']))
+            if isinstance(item, TaskNovelItem):
+                content = os.path.join(space, item['space'], 'novel.html')
+                with open(content, 'w', encoding='utf-8') as meta:
+                    meta.write(novel_html(item['title'], item['content']))
 
-            # insert_session = insert(NovelTable).values(
-            #     primary="novel_%s" % item['id'],
-            #     id=item['id'],
-            #     work_id=item['id'],
-            #     content=item['content'],
-            #     path=os.path.join(
-            #         item['space'],
-            #         'novel.html'
-            #     )
-            # )
-            # duplicate_key_session = insert_session.on_duplicate_key_update(
-            #     is_del=True,
-            # )
-            # _connect.execute(duplicate_key_session)
+                insert_session = insert(NovelTable).values(
+                    primary="novel_%s" % item['id'],
+                    id=item['id'],
+                    work_id=item['id'],
+                    content=item['content'],
+                    path=os.path.join(
+                        item['space'],
+                        'novel.html'
+                    )
+                )
+                duplicate_key_session = insert_session.on_duplicate_key_update(
+                    is_del=False,
+                )
+                _connect.execute(duplicate_key_session)
 
         _spider._logger.info("Complate : %s-%s-%s" % (item['title'], item['id'], donwalod_space))
 
