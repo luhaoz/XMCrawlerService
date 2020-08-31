@@ -3,13 +3,14 @@ from scrapy import Spider, Request, FormRequest
 import os
 from core.runtime import Setting
 from scrapy.http.response.html import HtmlResponse
-from urllib.parse import urlparse, parse_qs, urlencode
+from urllib.parse import urlparse, parse_qsl, urlencode
 import demjson
 from .items import AuthorItem, TaskMetaItem, TaskNovelItem, TaskWorkItem, SourceItem
 import demjson
 from core.util import list_chunks
 from ..pixiv import file_space, novel_format, novel_bind_image
 import re
+import math
 
 
 class Script(CoreSpider):
@@ -28,15 +29,96 @@ class Script(CoreSpider):
 
     @classmethod
     def start_requests(cls):
-        # _url = 'https://www.pixiv.net/users/154438'
-        _url = 'https://www.pixiv.net/users/18638215'
-        _cookies = Setting.space("pixiv.runtime").parameter("cookies.json").json()
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36',
             'Accept-Language': 'zh-CN',
         }
-        cls._logger.info("Task Url %s" % _url)
-        yield Request(url=_url, callback=cls.analysis, headers=headers, cookies=_cookies)
+        _cookies = Setting.space("pixiv.runtime").parameter("cookies.json").json()
+
+        urls = [
+            'https://www.pixiv.net/users/20037523',
+            'https://www.pixiv.net/users/17918526',
+            'https://www.pixiv.net/users/30853870',
+            'https://www.pixiv.net/users/40739400',
+            'https://www.pixiv.net/users/2078727',
+            'https://www.pixiv.net/users/29537',
+            'https://www.pixiv.net/users/53812',
+            'https://www.pixiv.net/users/3741778',
+            'https://www.pixiv.net/users/16058450',
+            'https://www.pixiv.net/users/580728',
+            'https://www.pixiv.net/users/580728',
+            'https://www.pixiv.net/users/2023765',
+            'https://www.pixiv.net/users/19245146',
+            'https://www.pixiv.net/users/5037083',
+            'https://www.pixiv.net/users/84752',
+            'https://www.pixiv.net/users/4213659',
+            'https://www.pixiv.net/users/1793667',
+            'https://www.pixiv.net/users/17922136',
+            'https://www.pixiv.net/users/4383806',
+            'https://www.pixiv.net/users/31084738',
+            'https://www.pixiv.net/users/4635235',
+            'https://www.pixiv.net/users/39887185',
+            'https://www.pixiv.net/users/35825050',
+            'https://www.pixiv.net/users/35825050',
+            'https://www.pixiv.net/users/16712573',
+            'https://www.pixiv.net/users/1285568',
+            'https://www.pixiv.net/users/6289657',
+            'https://www.pixiv.net/users/671225',
+            'https://www.pixiv.net/users/1412853',
+            'https://www.pixiv.net/users/361705',
+            'https://www.pixiv.net/users/45168768',
+            'https://www.pixiv.net/users/16186617',
+            'https://www.pixiv.net/users/680161',
+            'https://www.pixiv.net/users/343981',
+            'https://www.pixiv.net/users/5397444',
+            'https://www.pixiv.net/users/4042011',
+            'https://www.pixiv.net/users/16274829',
+            'https://www.pixiv.net/users/45847523',
+            'https://www.pixiv.net/users/28617557',
+            'https://www.pixiv.net/users/6916534',
+            'https://www.pixiv.net/users/471249',
+            'https://www.pixiv.net/users/24414324',
+            'https://www.pixiv.net/users/687125',
+            'https://www.pixiv.net/users/15436076',
+            'https://www.pixiv.net/users/14440528',
+            'https://www.pixiv.net/users/8969258',
+            'https://www.pixiv.net/users/17801188',
+            'https://www.pixiv.net/users/45847523',
+            'https://www.pixiv.net/users/11022194',
+            'https://www.pixiv.net/users/18261283',
+            'https://www.pixiv.net/users/26495687',
+            'https://www.pixiv.net/users/8587823',
+            'https://www.pixiv.net/users/18638215'
+        ]
+
+        for _url in urls:
+            cls._logger.info("Task Url %s" % _url)
+            yield Request(url=_url, callback=cls.analysis, headers=headers, cookies=_cookies)
+
+        _user = 25013373
+        _authors = "https://www.pixiv.net/ajax/user/%s/following?offset=0&limit=24&rest=show&tag=&lang=zh" % _user
+        headers['Referer'] = 'https://www.pixiv.net/users/%s/following' % _user
+        yield Request(url=_authors, callback=cls.authors, headers=headers, cookies=_cookies, meta={
+            "follow_user": _user
+        })
+
+    @classmethod
+    def authors(cls, response: HtmlResponse):
+        _detail = demjson.decode(response.text)['body']
+        _total = int(_detail['total'])
+        _page_count = math.ceil(_total / 24)
+        for _index in range(1, _page_count):
+            _offset = _index * 24
+            _author_page = "https://www.pixiv.net/ajax/user/%s/following?offset=%s&limit=24&rest=show&tag=&lang=zh" % (response.meta['follow_user'], _offset)
+            yield Request(url=_author_page, callback=cls.author_work, meta=response.meta)
+
+    @classmethod
+    def author_work(cls, response: HtmlResponse):
+        _detail = demjson.decode(response.text)['body']
+        for _user in _detail['users']:
+            _work = 'https://www.pixiv.net/users/%s' % _user['userId']
+            cls._logger.info("Task Url %s" % _work)
+            yield Request(url=_work, callback=cls.analysis, meta=response.meta)
 
     @classmethod
     def analysis(cls, response: HtmlResponse):
