@@ -8,9 +8,11 @@ import demjson
 from .items import AuthorItem, TaskMetaItem, TaskNovelItem, TaskWorkItem, SourceItem
 import demjson
 from core.util import list_chunks
-from ..pixiv import file_space, novel_format, novel_bind_image
+from ..pixiv import file_space, novel_format, novel_bind_image, Runtime
 import re
 import math
+from ..pixiv.core.databases import Database, WorkTable
+from sqlalchemy import select
 
 
 class Script(CoreSpider):
@@ -21,7 +23,7 @@ class Script(CoreSpider):
             'CONCURRENT_REQUESTS': 24,
             # 'LOG_LEVEL': 'ERROR',
             # 'LOG_ENABLED': True,
-            'FILES_STORE': os.path.join("/", 'data', 'space'),
+            'FILES_STORE': os.path.join(Runtime.path().get("FILES_STORE"), 'space'),
             'ITEM_PIPELINES': {
                 'script.pixiv.pipelines.TaskPipeline': 90
             },
@@ -122,20 +124,13 @@ class Script(CoreSpider):
 
     @classmethod
     def analysis(cls, response: HtmlResponse):
-        # print(response.text)
         url = urlparse(response.url)
         id = url.path.replace('/users/', '')
         cls._logger.info("Author Id : %s" % id)
         data_all = 'https://www.pixiv.net/ajax/user/%s/profile/all' % id
         cls._logger.info("Item Url  : %s" % data_all)
-        # author_item = AuthorItem()
         _meta_content = response.xpath('//meta[@id="meta-preload-data"]/@content').extract_first()
         _meta = demjson.decode(_meta_content)
-        # author_item['id'] = _meta['user'][id]['userId']
-        # author_item['name'] = _meta['user'][id]['name']
-
-        _space = cls.settings().get('FILES_STORE')
-
         yield Request(url=data_all, callback=cls.works, meta={
             "id": id
         })
@@ -155,7 +150,27 @@ class Script(CoreSpider):
         cls._logger.info("Novels     Total :%s" % len(novels))
         cls._logger.info("ALL        Total :%s" % (len(illusts) + len(mangas) + len(novels)))
 
-        for illust_indexs in list_chunks(list(illusts), 48):
+        with Database.engine().connect() as _connect:
+            _has = select([WorkTable.columns.id]).where(WorkTable.columns.id.in_(illusts)).where(WorkTable.columns.is_del == 0).where(WorkTable.columns.type == "illust")
+            _data = _connect.execute(_has)
+            _diff_illusts = set(illusts).difference([item[0] for item in _data])
+            cls._logger.info("Illusts  Skip  Total :%s" % _diff_illusts)
+
+        with Database.engine().connect() as _connect:
+            _has = select([WorkTable.columns.id]).where(WorkTable.columns.id.in_(mangas)).where(WorkTable.columns.is_del == 0).where(WorkTable.columns.type == "illust")
+            _data = _connect.execute(_has)
+            _diff_mangas = set(mangas).difference([item[0] for item in _data])
+
+            cls._logger.info("Mangas  Skip    Total :%s" % mangas)
+
+        with Database.engine().connect() as _connect:
+            _has = select([WorkTable.columns.id]).where(WorkTable.columns.id.in_(novels)).where(WorkTable.columns.is_del == 0).where(WorkTable.columns.type == "novel")
+            _data = _connect.execute(_has)
+            _diff_novels = set(novels).difference([item[0] for item in _data])
+
+            cls._logger.info("Novels   Skip  Total :%s" % _diff_novels)
+
+        for illust_indexs in list_chunks(list(_diff_illusts), 48):
             params = {
                 'ids[]': illust_indexs,
                 'work_category': 'illust',
@@ -167,7 +182,7 @@ class Script(CoreSpider):
             )
             yield Request(url=work_meta, callback=cls.work_meta, meta=response.meta)
 
-        for manga_indexs in list_chunks(list(mangas), 48):
+        for manga_indexs in list_chunks(list(_diff_mangas), 48):
             params = {
                 'ids[]': manga_indexs,
                 'work_category': 'manga',
@@ -178,7 +193,8 @@ class Script(CoreSpider):
                 urlencode(params, True)
             )
             yield Request(url=work_meta, callback=cls.work_meta, meta=response.meta)
-        for novel_indexs in novels:
+
+        for novel_indexs in _diff_novels:
             novel_url = 'https://www.pixiv.net/ajax/novel/%s' % novel_indexs
 
             response.meta['id'] = novel_indexs
