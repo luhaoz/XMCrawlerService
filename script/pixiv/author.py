@@ -23,7 +23,7 @@ class Script(CoreSpider):
             'CONCURRENT_REQUESTS': 24,
             # 'LOG_LEVEL': 'ERROR',
             # 'LOG_ENABLED': True,
-            'FILES_STORE': os.path.join(Runtime.path().get("FILES_STORE"), 'space'),
+            'FILES_STORE': os.path.join(Runtime.path().get("FILES_STORE"), 'author'),
             'ITEM_PIPELINES': {
                 'script.pixiv.pipelines.TaskPipeline': 90
             },
