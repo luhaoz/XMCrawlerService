@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.dialects.mysql import insert
 from sqlalchemy import MetaData
 import hashlib
-
+from sqlalchemy.dialects.mysql import LONGTEXT, MEDIUMINT
 metadata = MetaData()
 
 AuthorTable = Table(
@@ -85,15 +85,15 @@ NovelTable = Table(
     Column("work_id", String(255), nullable=False),
     Index("work_id_index", "work_id"),
 
-    Column("content", Text, nullable=False),
+    Column("content", LONGTEXT, nullable=False),
     Column("path", String(255), nullable=False),
 
     Column("is_del", Boolean, nullable=False, default=False),
     Index("is_del_index", "is_del"),
 )
 
-# _db_host = "localhost"
-_db_host = "172.16.238.10"
+_db_host = "localhost"
+# _db_host = "172.16.238.10"
 
 
 class Database(object):

@@ -2,6 +2,17 @@ from core.util import path_format
 import os
 
 
+class Runtime(object):
+    @classmethod
+    def path(cls):
+        # _root = os.path.join("/", "data")
+        _root = os.path.join(".")
+
+        return {
+            "FILES_STORE": os.path.join(_root, "space")
+        }
+
+
 def author_space(item):
     author_path = "%s_%s" % (item['author']['name'], item['author']['id'])
     return path_format(author_path)
