@@ -92,8 +92,8 @@ NovelTable = Table(
     Index("is_del_index", "is_del"),
 )
 
-_db_host = "localhost"
-# _db_host = "172.16.238.10"
+# _db_host = "localhost"
+_db_host = "172.16.238.10"
 
 
 class Database(object):
