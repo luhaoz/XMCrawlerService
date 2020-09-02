@@ -5,6 +5,7 @@ from sqlalchemy.dialects.mysql import insert
 from sqlalchemy import MetaData
 import hashlib
 from sqlalchemy.dialects.mysql import LONGTEXT, MEDIUMINT
+
 metadata = MetaData()
 
 AuthorTable = Table(
@@ -94,35 +95,24 @@ NovelTable = Table(
 
 # _db_host = "localhost"
 _db_host = "172.16.238.10"
+_mysql_url = "mysql+pymysql://root:scrapy_db@%s:3306" % _db_host
 
 
-class Database(object):
-    _engine = None
-    _session = None
-
-    @classmethod
-    def engine(cls):
-        if cls._engine is None:
-            cls._engine = create_engine("mysql+pymysql://root:scrapy_db@%s:3306" % _db_host)
-        return cls._engine
-
+class DatabaseUtil(object):
     @classmethod
     def init(cls, database_name):
-        engine_default = cls.engine()
+        engine_default = create_engine(_mysql_url)
         conn = engine_default.connect()
         conn.execute("COMMIT")
         conn.execute("CREATE DATABASE IF NOT EXISTS %s" % database_name)
         conn.close()
-        cls._engine = create_engine("mysql+pymysql://root:scrapy_db@%s:3306/%s" % (_db_host, database_name))
         cls.create_table()
+        return cls.engine(database_name)
 
     @classmethod
     def create_table(cls):
         metadata.create_all(cls.engine())
 
     @classmethod
-    def session(cls):
-        if cls._session is None:
-            Session = sessionmaker(bind=cls.engine())
-            cls._session = Session()
-        return cls._session
+    def engine(cls, database_name):
+        return create_engine("%s/%s" % (_mysql_url, database_name), echo=True)

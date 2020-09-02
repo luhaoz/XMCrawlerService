@@ -11,11 +11,13 @@ from core.util import list_chunks
 from ..pixiv import file_space, novel_format, novel_bind_image, Runtime
 import re
 import math
-from ..pixiv.core.databases import Database, WorkTable
+from ..pixiv.core.databases import DatabaseUtil, WorkTable
 from sqlalchemy import select
 
 
 class Script(CoreSpider):
+    _engine = None
+
     @classmethod
     def settings(cls):
         return {
@@ -31,6 +33,7 @@ class Script(CoreSpider):
 
     @classmethod
     def start_requests(cls):
+        cls._engine = DatabaseUtil.init("pixiv_space")
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36',
             'Accept-Language': 'zh-CN',
@@ -150,20 +153,20 @@ class Script(CoreSpider):
         cls._logger.info("Novels     Total :%s" % len(novels))
         cls._logger.info("ALL        Total :%s" % (len(illusts) + len(mangas) + len(novels)))
 
-        with Database.engine().connect() as _connect:
+        with cls._engine.connect() as _connect:
             _has = select([WorkTable.columns.id]).where(WorkTable.columns.id.in_(illusts)).where(WorkTable.columns.is_del == 0).where(WorkTable.columns.type == "illust")
             _data = _connect.execute(_has)
             _diff_illusts = set(illusts).difference([item[0] for item in _data])
             cls._logger.info("Illusts  Skip  Total :%s" % _diff_illusts)
 
-        with Database.engine().connect() as _connect:
+        with cls._engine.connect() as _connect:
             _has = select([WorkTable.columns.id]).where(WorkTable.columns.id.in_(mangas)).where(WorkTable.columns.is_del == 0).where(WorkTable.columns.type == "illust")
             _data = _connect.execute(_has)
             _diff_mangas = set(mangas).difference([item[0] for item in _data])
 
             cls._logger.info("Mangas  Skip    Total :%s" % mangas)
 
-        with Database.engine().connect() as _connect:
+        with cls._engine.connect() as _connect:
             _has = select([WorkTable.columns.id]).where(WorkTable.columns.id.in_(novels)).where(WorkTable.columns.is_del == 0).where(WorkTable.columns.type == "novel")
             _data = _connect.execute(_has)
             _diff_novels = set(novels).difference([item[0] for item in _data])
