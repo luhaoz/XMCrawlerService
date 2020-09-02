@@ -9,18 +9,17 @@ from scrapy.exceptions import DropItem
 import demjson
 from ..pixiv import novel_format, novel_bind_image, novel_html
 from core import CoreSpider
-from ..pixiv.core.databases import Database, AuthorTable, WorkTable, IllustTable, NovelTable, TagTable
+from ..pixiv.core.databases import DatabaseUtil, AuthorTable, WorkTable, IllustTable, NovelTable, TagTable
 import time
 from sqlalchemy.dialects.mysql import insert
 from core.util import md5
 
 
 class TaskPipeline(FilesPipeline):
-    db_session = None
+    _engine = None
 
     def open_spider(self, spider):
-        Database.init("pixiv_space")
-        self.db_session = Database.session()
+        self._engine = DatabaseUtil.init("pixiv_space")
         super().open_spider(spider)
 
     def get_media_requests(self, item: TaskMetaItem, info: MediaPipeline.SpiderInfo):
@@ -66,7 +65,7 @@ class TaskPipeline(FilesPipeline):
             with open(content, 'w', encoding='utf-8') as meta:
                 meta.write(novel_html(item['title'], item['content']))
 
-        with Database.engine().connect() as _connect:
+        with self._engine.connect() as _connect:
             # author
             insert_session = insert(AuthorTable).values(
                 primary="author_%s" % item['author']['id'],
