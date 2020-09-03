@@ -6,6 +6,7 @@ import json
 
 class Config(object):
     runtime = os.path.join("/", "data", "runtime")
+    # runtime = os.path.join("runtime")
 
 
 class Parameter(object):
