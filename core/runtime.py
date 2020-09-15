@@ -4,9 +4,16 @@ import subprocess
 import json
 
 
+class App(object):
+    @classmethod
+    def path(cls):
+        return {
+            "root": os.path.join("/", "data")
+        }
+
+
 class Config(object):
-    runtime = os.path.join("/", "data", "runtime")
-    # runtime = os.path.join("runtime")
+    runtime = os.path.join(App.path().get("root"), "runtime")
 
 
 class Parameter(object):

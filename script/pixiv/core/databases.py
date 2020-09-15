@@ -106,6 +106,6 @@ class DatabaseUtil(object):
         conn.execute("COMMIT")
         conn.execute("CREATE DATABASE IF NOT EXISTS %s" % database_name)
         conn.close()
-        _engine = create_engine("%s/%s" % (_mysql_url, database_name), echo=True)
+        _engine = create_engine("%s/%s" % (_mysql_url, database_name))
         metadata.create_all(_engine)
         return _engine

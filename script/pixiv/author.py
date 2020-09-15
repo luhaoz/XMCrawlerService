@@ -21,9 +21,10 @@ class Script(CoreSpider):
     @classmethod
     def settings(cls):
         return {
-            'AUTOTHROTTLE_ENABLED': True,
-            'CONCURRENT_REQUESTS': 24,
+            # 'AUTOTHROTTLE_ENABLED': True,
+            'CONCURRENT_REQUESTS': 100,
             # 'LOG_LEVEL': 'ERROR',
+
             # 'LOG_ENABLED': True,
             'FILES_STORE': os.path.join(Runtime.path().get("FILES_STORE"), 'author'),
             'ITEM_PIPELINES': {
