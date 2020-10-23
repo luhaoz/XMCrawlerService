@@ -38,22 +38,22 @@ services:
         app_net:
           ipv4_address: 172.16.238.20
 
-#  scrapy:
-#      depends_on:
-#        - db
-#      tty: true
-#      build:
-#        context: ./docker
-#        dockerfile: python
-#      volumes:
-#        - ./space:/data/space
-#        - ./runtime:/data/runtime
-#        - .:/app
-#        - ./docker/scrapy/ca-certificates:/usr/local/share/ca-certificates
-#        - ./docker/scrapy/hosts:/etc/hosts
-#      networks:
-#        app_net:
-#          ipv4_address: 172.16.238.25
+  scrapy:
+      depends_on:
+        - db
+      tty: true
+      build:
+        context: ./docker
+        dockerfile: python
+      volumes:
+        - ./space:/data/space
+        - ./runtime:/data/runtime
+        - .:/app
+        - ./docker/scrapy/ca-certificates:/usr/local/share/ca-certificates
+        - ./docker/scrapy/hosts:/etc/hosts
+      networks:
+        app_net:
+          ipv4_address: 172.16.238.25
 networks:
   app_net:
     ipam:
