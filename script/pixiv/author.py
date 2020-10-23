@@ -27,6 +27,9 @@ class Script(CoreSpider):
 
             # 'LOG_ENABLED': True,
             'FILES_STORE': os.path.join(Runtime.path().get("FILES_STORE"), 'author'),
+            'DOWNLOADER_MIDDLEWARES': {
+                'script.pixiv.pipelines.ProxyMiddleware': 100,
+            },
             'ITEM_PIPELINES': {
                 'script.pixiv.pipelines.TaskPipeline': 90
             },
@@ -42,58 +45,58 @@ class Script(CoreSpider):
         _cookies = Setting.space("pixiv.runtime").parameter("cookies.json").json()
 
         urls = [
-            'https://www.pixiv.net/users/20037523',
-            'https://www.pixiv.net/users/17918526',
-            'https://www.pixiv.net/users/30853870',
-            'https://www.pixiv.net/users/40739400',
-            'https://www.pixiv.net/users/2078727',
-            'https://www.pixiv.net/users/29537',
-            'https://www.pixiv.net/users/53812',
-            'https://www.pixiv.net/users/3741778',
-            'https://www.pixiv.net/users/16058450',
-            'https://www.pixiv.net/users/580728',
-            'https://www.pixiv.net/users/580728',
-            'https://www.pixiv.net/users/2023765',
-            'https://www.pixiv.net/users/19245146',
-            'https://www.pixiv.net/users/5037083',
-            'https://www.pixiv.net/users/84752',
-            'https://www.pixiv.net/users/4213659',
-            'https://www.pixiv.net/users/1793667',
-            'https://www.pixiv.net/users/17922136',
-            'https://www.pixiv.net/users/4383806',
-            'https://www.pixiv.net/users/31084738',
-            'https://www.pixiv.net/users/4635235',
-            'https://www.pixiv.net/users/39887185',
-            'https://www.pixiv.net/users/35825050',
-            'https://www.pixiv.net/users/35825050',
-            'https://www.pixiv.net/users/16712573',
-            'https://www.pixiv.net/users/1285568',
-            'https://www.pixiv.net/users/6289657',
-            'https://www.pixiv.net/users/671225',
-            'https://www.pixiv.net/users/1412853',
-            'https://www.pixiv.net/users/361705',
-            'https://www.pixiv.net/users/45168768',
-            'https://www.pixiv.net/users/16186617',
-            'https://www.pixiv.net/users/680161',
-            'https://www.pixiv.net/users/343981',
-            'https://www.pixiv.net/users/5397444',
-            'https://www.pixiv.net/users/4042011',
-            'https://www.pixiv.net/users/16274829',
-            'https://www.pixiv.net/users/45847523',
-            'https://www.pixiv.net/users/28617557',
-            'https://www.pixiv.net/users/6916534',
-            'https://www.pixiv.net/users/471249',
-            'https://www.pixiv.net/users/24414324',
-            'https://www.pixiv.net/users/687125',
-            'https://www.pixiv.net/users/15436076',
-            'https://www.pixiv.net/users/14440528',
-            'https://www.pixiv.net/users/8969258',
-            'https://www.pixiv.net/users/17801188',
-            'https://www.pixiv.net/users/45847523',
-            'https://www.pixiv.net/users/11022194',
-            'https://www.pixiv.net/users/18261283',
-            'https://www.pixiv.net/users/26495687',
-            'https://www.pixiv.net/users/8587823',
+            # 'https://www.pixiv.net/users/20037523',
+            # 'https://www.pixiv.net/users/17918526',
+            # 'https://www.pixiv.net/users/30853870',
+            # 'https://www.pixiv.net/users/40739400',
+            # 'https://www.pixiv.net/users/2078727',
+            # 'https://www.pixiv.net/users/29537',
+            # 'https://www.pixiv.net/users/53812',
+            # 'https://www.pixiv.net/users/3741778',
+            # 'https://www.pixiv.net/users/16058450',
+            # 'https://www.pixiv.net/users/580728',
+            # 'https://www.pixiv.net/users/580728',
+            # 'https://www.pixiv.net/users/2023765',
+            # 'https://www.pixiv.net/users/19245146',
+            # 'https://www.pixiv.net/users/5037083',
+            # 'https://www.pixiv.net/users/84752',
+            # 'https://www.pixiv.net/users/4213659',
+            # 'https://www.pixiv.net/users/1793667',
+            # 'https://www.pixiv.net/users/17922136',
+            # 'https://www.pixiv.net/users/4383806',
+            # 'https://www.pixiv.net/users/31084738',
+            # 'https://www.pixiv.net/users/4635235',
+            # 'https://www.pixiv.net/users/39887185',
+            # 'https://www.pixiv.net/users/35825050',
+            # 'https://www.pixiv.net/users/35825050',
+            # 'https://www.pixiv.net/users/16712573',
+            # 'https://www.pixiv.net/users/1285568',
+            # 'https://www.pixiv.net/users/6289657',
+            # 'https://www.pixiv.net/users/671225',
+            # 'https://www.pixiv.net/users/1412853',
+            # 'https://www.pixiv.net/users/361705',
+            # 'https://www.pixiv.net/users/45168768',
+            # 'https://www.pixiv.net/users/16186617',
+            # 'https://www.pixiv.net/users/680161',
+            # 'https://www.pixiv.net/users/343981',
+            # 'https://www.pixiv.net/users/5397444',
+            # 'https://www.pixiv.net/users/4042011',
+            # 'https://www.pixiv.net/users/16274829',
+            # 'https://www.pixiv.net/users/45847523',
+            # 'https://www.pixiv.net/users/28617557',
+            # 'https://www.pixiv.net/users/6916534',
+            # 'https://www.pixiv.net/users/471249',
+            # 'https://www.pixiv.net/users/24414324',
+            # 'https://www.pixiv.net/users/687125',
+            # 'https://www.pixiv.net/users/15436076',
+            # 'https://www.pixiv.net/users/14440528',
+            # 'https://www.pixiv.net/users/8969258',
+            # 'https://www.pixiv.net/users/17801188',
+            # 'https://www.pixiv.net/users/45847523',
+            # 'https://www.pixiv.net/users/11022194',
+            # 'https://www.pixiv.net/users/18261283',
+            # 'https://www.pixiv.net/users/26495687',
+            # 'https://www.pixiv.net/users/8587823',
             'https://www.pixiv.net/users/18638215'
         ]
 
@@ -101,12 +104,12 @@ class Script(CoreSpider):
             cls._logger.info("Task Url %s" % _url)
             yield Request(url=_url, callback=cls.analysis, headers=headers, cookies=_cookies)
 
-        _user = 25013373
-        _authors = "https://www.pixiv.net/ajax/user/%s/following?offset=0&limit=24&rest=show&tag=&lang=zh" % _user
-        headers['Referer'] = 'https://www.pixiv.net/users/%s/following' % _user
-        yield Request(url=_authors, callback=cls.authors, headers=headers, cookies=_cookies, meta={
-            "follow_user": _user
-        })
+        # _user = 25013373
+        # _authors = "https://www.pixiv.net/ajax/user/%s/following?offset=0&limit=24&rest=show&tag=&lang=zh" % _user
+        # headers['Referer'] = 'https://www.pixiv.net/users/%s/following' % _user
+        # yield Request(url=_authors, callback=cls.authors, headers=headers, cookies=_cookies, meta={
+        #     "follow_user": _user
+        # })
 
     @classmethod
     def authors(cls, response: HtmlResponse):

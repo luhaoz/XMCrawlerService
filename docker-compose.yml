@@ -46,7 +46,7 @@ services:
         context: ./docker
         dockerfile: python
       volumes:
-        - N:\pixiv\space:/data/space
+        - ./space:/data/space
         - ./runtime:/data/runtime
         - .:/app
         - ./docker/scrapy/ca-certificates:/usr/local/share/ca-certificates

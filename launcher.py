@@ -6,8 +6,12 @@ from multiprocessing import Process, freeze_support, Pool
 # # from script.fanbox import author
 # from script.tstorage import users
 import script.pixiv.author
-import script.fanbox.author
-import script.tstorage.users
+# import script.iwara.author
+# import script.fanbox.author
+# import script.fanbox_subscribe.author
+# import script.fanbox_subscribe.author
+# import script.tstorage.users
+import os
 
 
 def crawl_run(spider: CoreSpider):
@@ -20,9 +24,11 @@ if __name__ == '__main__':
     freeze_support()
     _pool = Pool(processes=10)
     _scripts = [
+        script.pixiv.author
         # script.pixiv.author,
-        script.fanbox.author,
-        script.tstorage.users,
+        # script.fanbox_subscribe.author,
+        # script.iwara.author
+        # script.tstorage.users,
     ]
 
     for _script in _scripts:
