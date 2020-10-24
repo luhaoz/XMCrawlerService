@@ -10,10 +10,6 @@ from scrapy.exceptions import DropItem
 import demjson
 
 
-class ProxyMiddleware(object):
-    def process_request(self, request, spider):
-        request.meta['proxy'] = "http://host.docker.internal:10809"
-
 
 class TaskPipeline(FilesPipeline):
     _engine = None

@@ -18,13 +18,13 @@ class Script(CoreSpider):
             # https://www.pixiv.net/users/46811099
             # 'AUTOTHROTTLE_ENABLED': True,
             'CONCURRENT_REQUESTS': 10,
-            # 'LOG_LEVEL': 'ERROR',
+            'LOG_LEVEL': 'DEBUG',
 
-            # 'LOG_ENABLED': True,
+            'LOG_ENABLED': True,
             'FILES_STORE': os.path.join(Runtime.path().get("FILES_STORE"), 'author'),
-            'DOWNLOADER_MIDDLEWARES': {
-                'script.iwara.pipelines.ProxyMiddleware': 100,
-            },
+            # 'DOWNLOADER_MIDDLEWARES': {
+            #     'core.pipelines.ProxyMiddleware': 100,
+            # },
             'ITEM_PIPELINES': {
                 'script.iwara.pipelines.TaskPipeline': 90
             },
@@ -35,17 +35,18 @@ class Script(CoreSpider):
         # cls._engine = DatabaseUtil.init("pixiv_space")
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36',
-            # 'Accept-Language': 'zh-CN',
-            # 'origin': 'https://www.fanbox.cc',
-            # 'referer': 'https://www.fanbox.cc/creators/supporting'
         }
-        _cookies = Setting.space("iwara.runtime").parameter("cookies.json").json()
-        _url = "https://ecchi.iwara.tv/users/%s/videos" % "delta2018w"
 
-        yield Request(url=_url, callback=cls.authors, cookies=_cookies, headers=headers)
-        #
-        # _url = "https://api.fanbox.cc/creator.listFollowing"
-        # yield Request(url=_url, callback=cls.authors, cookies=_cookies, headers=headers)
+        _users = [
+            "delta2018w",
+            "Ciel_xxx"
+        ]
+        print(_users)
+        _cookies = Setting.space("iwara.runtime").parameter("cookies.json").json()
+
+        for _user in _users:
+            _url = "https://ecchi.iwara.tv/users/%s/videos" % _user
+            yield Request(url=_url, callback=cls.authors, cookies=_cookies, headers=headers)
 
     @classmethod
     def authors(cls, response: HtmlResponse):

@@ -48,6 +48,7 @@ services:
         dockerfile: python
       environment:
         MYSQL_SERVICE: db
+        PROXY_PORT: 10809
       volumes:
         - ./space:/data/space
         - ./runtime:/data/runtime

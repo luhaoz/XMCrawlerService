@@ -22,7 +22,7 @@ def file_space(item):
 class Runtime(object):
     @classmethod
     def path(cls):
-        # _root = os.path.join(App.path().get("root"))
+        _root = os.path.join(App.path().get("root"))
         return {
-            "FILES_STORE": os.path.join("D:\\space", 'iwara')
+            "FILES_STORE": os.path.join(_root, "space", "iwara")
         }
