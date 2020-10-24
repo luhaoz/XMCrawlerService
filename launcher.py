@@ -9,9 +9,10 @@ import script.pixiv.author
 # import script.iwara.author
 # import script.fanbox.author
 # import script.fanbox_subscribe.author
-# import script.fanbox_subscribe.author
 # import script.tstorage.users
 import os
+from core.util import service_ready
+import time
 
 
 def crawl_run(spider: CoreSpider):
@@ -22,6 +23,9 @@ def crawl_run(spider: CoreSpider):
 
 if __name__ == '__main__':
     freeze_support()
+    while service_ready(os.environ.get('MYSQL_SERVICE'), 3306) is False:
+        time.sleep(1)
+
     _pool = Pool(processes=10)
     _scripts = [
         script.pixiv.author

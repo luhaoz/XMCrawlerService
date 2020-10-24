@@ -1,4 +1,14 @@
-FROM python:3.8
+FROM python:3.8.6-buster
 
+ADD ./scrapy/sources.list /etc/apt/
+RUN apt-get update
+RUN apt-get install -y gcc
+RUN apt-get install -y supervisor
+RUN apt-get install -y iputils-ping
+RUN pip config set global.index-url http://mirrors.aliyun.com/pypi/simple
+RUN pip config set install.trusted-host mirrors.aliyun.com
+RUN pip install --upgrade setuptools pip
+RUN pip install incremental
+RUN pip install scrapy
 RUN update-ca-certificates
-CMD pip install --trusted-host mirrors.aliyun.com -r app/requirements && python /app/launcher.py && tail -f /dev/null
+CMD pip install -r app/requirements && python app/launcher.py && tail -f /dev/null

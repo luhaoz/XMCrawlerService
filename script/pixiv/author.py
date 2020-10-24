@@ -25,11 +25,11 @@ class Script(CoreSpider):
             'CONCURRENT_REQUESTS': 100,
             # 'LOG_LEVEL': 'ERROR',
 
-            # 'LOG_ENABLED': True,
+            'LOG_ENABLED': True,
             'FILES_STORE': os.path.join(Runtime.path().get("FILES_STORE"), 'author'),
-            'DOWNLOADER_MIDDLEWARES': {
-                'script.pixiv.pipelines.ProxyMiddleware': 100,
-            },
+            # 'DOWNLOADER_MIDDLEWARES': {
+            #     'script.pixiv.pipelines.ProxyMiddleware': 100,
+            # },
             'ITEM_PIPELINES': {
                 'script.pixiv.pipelines.TaskPipeline': 90
             },
@@ -39,7 +39,7 @@ class Script(CoreSpider):
     def start_requests(cls):
         cls._engine = DatabaseUtil.init("pixiv_space")
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36',
             'Accept-Language': 'zh-CN',
         }
         _cookies = Setting.space("pixiv.runtime").parameter("cookies.json").json()
@@ -96,8 +96,8 @@ class Script(CoreSpider):
             # 'https://www.pixiv.net/users/11022194',
             # 'https://www.pixiv.net/users/18261283',
             # 'https://www.pixiv.net/users/26495687',
-            # 'https://www.pixiv.net/users/8587823',
-            'https://www.pixiv.net/users/18638215'
+            'https://www.pixiv.net/users/8587823',
+            # 'https://www.pixiv.net/users/18638215'
         ]
 
         for _url in urls:
@@ -212,9 +212,9 @@ class Script(CoreSpider):
         work_meta = demjson.decode(response.text)['body']['works']
 
         for _item in work_meta.values():
-            artworks = 'https://www.pixiv.net/ajax/illust/%s' % _item['illustId']
-            referer = 'https://www.pixiv.net/artworks/%s' % _item['illustId']
-            cls._logger.info("Illust Title :%s" % _item['illustTitle'])
+            artworks = 'https://www.pixiv.net/ajax/illust/%s' % _item['id']
+            referer = 'https://www.pixiv.net/artworks/%s' % _item['id']
+            cls._logger.info("Illust Title :%s" % _item['title'])
             yield Request(url=artworks, callback=cls.work_detail, meta=response.meta, headers={
                 'Referer': referer
             })

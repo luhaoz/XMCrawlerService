@@ -3,6 +3,7 @@ services:
   db:
     restart: always
     image: mysql
+    tty: true
     command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: scrapy_db
@@ -45,6 +46,8 @@ services:
       build:
         context: ./docker
         dockerfile: python
+      environment:
+        MYSQL_SERVICE: db
       volumes:
         - ./space:/data/space
         - ./runtime:/data/runtime

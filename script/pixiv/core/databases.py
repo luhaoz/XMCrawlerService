@@ -5,6 +5,7 @@ from sqlalchemy.dialects.mysql import insert
 from sqlalchemy import MetaData
 import hashlib
 from sqlalchemy.dialects.mysql import LONGTEXT, MEDIUMINT
+import os
 
 metadata = MetaData()
 
@@ -93,8 +94,7 @@ NovelTable = Table(
     Index("is_del_index", "is_del"),
 )
 
-# _db_host = "localhost"
-_db_host = "172.16.238.10"
+_db_host = os.environ.get('MYSQL_SERVICE')
 _mysql_url = "mysql+pymysql://root:scrapy_db@%s:3306" % _db_host
 
 

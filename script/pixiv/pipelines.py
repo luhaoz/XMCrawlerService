@@ -15,6 +15,11 @@ from sqlalchemy.dialects.mysql import insert
 from core.util import md5
 
 
+class ProxyMiddleware(object):
+    def process_request(self, request, spider):
+        request.meta['proxy'] = "http://host.docker.internal:10809"
+
+
 class TaskPipeline(FilesPipeline):
     _engine = None
 
@@ -78,7 +83,8 @@ class TaskPipeline(FilesPipeline):
             _connect.execute(duplicate_key_session)
 
             # works
-            _time = time.mktime(time.strptime(item['upload_date'].replace("T", " ").replace("+00:00", ""), "%Y-%m-%d %H:%M:%S"))
+            _time = time.mktime(
+                time.strptime(item['upload_date'].replace("T", " ").replace("+00:00", ""), "%Y-%m-%d %H:%M:%S"))
             insert_session = insert(WorkTable).values(
                 primary="works_%s" % item['id'],
                 id=item['id'],
