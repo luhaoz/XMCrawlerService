@@ -22,9 +22,9 @@ class Script(CoreSpider):
 
             'LOG_ENABLED': True,
             'FILES_STORE': os.path.join(Runtime.path().get("FILES_STORE"), 'author'),
-            # 'DOWNLOADER_MIDDLEWARES': {
-            #     'core.pipelines.ProxyMiddleware': 100,
-            # },
+            'DOWNLOADER_MIDDLEWARES': {
+                'core.pipelines.ProxyMiddleware': 100,
+            },
             'ITEM_PIPELINES': {
                 'script.iwara.pipelines.TaskPipeline': 90
             },
@@ -39,7 +39,11 @@ class Script(CoreSpider):
 
         _users = [
             "delta2018w",
-            "Ciel_xxx"
+            "Ciel_xxx",
+            "erenarin",
+            "黑叶冥",
+            "xiaodidi09",
+            "deepkiss"
         ]
         print(_users)
         _cookies = Setting.space("iwara.runtime").parameter("cookies.json").json()

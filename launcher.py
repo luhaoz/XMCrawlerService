@@ -14,7 +14,6 @@ import os
 from core.util import service_ready
 import time
 
-
 def crawl_run(spider: CoreSpider):
     process = CrawlerProcess(spider.settings())
     process.crawl(spider)
