@@ -13,10 +13,10 @@ def item_space(item):
 
 
 def file_space(item):
-    return os.path.join(
+    return "/".join([
         author_space(item),
         item_space(item),
-    )
+    ])
 
 
 class Runtime(object):

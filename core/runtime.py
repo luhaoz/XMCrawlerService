@@ -1,19 +1,21 @@
 import os
 import json
-import subprocess
-import json
 
 
 class App(object):
     @classmethod
-    def path(cls):
-        return {
-            "root": os.path.join("/", "data")
-        }
+    def runtime(cls):
+        _path = os.environ.get("XM_SPIDER_RUNTIME")
+        return _path
+
+    @classmethod
+    def space(cls):
+        _path = os.environ.get("XM_SPIDER_SPACE")
+        return _path
 
 
-class Config(object):
-    runtime = os.path.join(App.path().get("root"), "runtime")
+# class Config(object):
+#     runtime = os.path.join(App.path().get("root"), "runtime")
 
 
 class Parameter(object):

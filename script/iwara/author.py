@@ -19,14 +19,22 @@ class Script(CoreSpider):
             # 'AUTOTHROTTLE_ENABLED': True,
             'CONCURRENT_REQUESTS': 10,
             'LOG_LEVEL': 'DEBUG',
-
+            'AWS_ACCESS_KEY_ID': "minio",
+            'AWS_SECRET_ACCESS_KEY': "minio123",
+            'AWS_USE_SSL': False,
+            # 'AWS_VERIFY': False,
+            "AWS_ENDPOINT_URL": "http://127.0.0.1:9000",
             'LOG_ENABLED': True,
-            'FILES_STORE': os.path.join(Runtime.path().get("FILES_STORE"), 'author'),
+            'FILES_STORE': "s3://iwara/",
             'DOWNLOADER_MIDDLEWARES': {
                 'core.pipelines.ProxyMiddleware': 100,
             },
             'ITEM_PIPELINES': {
+                # 'script.iwara.pipelines.OSSTaskPipelin': 90
                 'script.iwara.pipelines.TaskPipeline': 90
+                # 'script.iwara.pipelines.TaskPipeline2': 90
+                # 'script.iwara.pipelines.TaskPipeline3': 90
+                # 'scrapy.pipelines.files.S3FilesStore': 1
             },
         }
 
@@ -51,6 +59,7 @@ class Script(CoreSpider):
         for _user in _users:
             _url = "https://ecchi.iwara.tv/users/%s/videos" % _user
             yield Request(url=_url, callback=cls.authors, cookies=_cookies, headers=headers)
+            break
 
     @classmethod
     def authors(cls, response: HtmlResponse):
@@ -63,10 +72,11 @@ class Script(CoreSpider):
                 continue
             _item_url = "https://ecchi.iwara.tv%s" % _item.xpath(".//h3/a/@href").extract_first()
             yield Request(url=_item_url, callback=cls.detail)
-        _next_page = response.xpath('//*[contains(@class,"pager-next")]/a/@href').extract_first()
-        if _next_page is not None:
-            _url = "https://ecchi.iwara.tv%s" % _next_page
-            yield Request(url=_url, callback=cls.authors)
+            # break
+        # _next_page = response.xpath('//*[contains(@class,"pager-next")]/a/@href').extract_first()
+        # if _next_page is not None:
+        #     _url = "https://ecchi.iwara.tv%s" % _next_page
+        #     yield Request(url=_url, callback=cls.authors)
 
     @classmethod
     def detail(cls, response: HtmlResponse):

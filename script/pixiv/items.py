@@ -21,21 +21,23 @@ class TaskMetaItem(CoreItem):
     author = scrapy.Field()
     upload_date = scrapy.Field()
     type = scrapy.Field()
-    space = scrapy.Field()
-    count = scrapy.Field()
 
 
-class TaskWorkItem(TaskMetaItem):
-    source = scrapy.Field()
+class TaskNovelItem(TaskMetaItem):
+    def __init__(self):
+        TaskMetaItem.__init__(self)
+        self['sources'] = []
 
-
-class SourceItem(CoreItem):
-    sources = scrapy.Field()
-
-
-class TaskNovelItem(TaskWorkItem):
     content = scrapy.Field()
+    sources = scrapy.Field()
+    count = scrapy.Field()
+    total = scrapy.Field()
 
 
 class TaskIllustItem(TaskMetaItem):
-    pass
+    def __init__(self):
+        TaskMetaItem.__init__(self)
+        self['sources'] = []
+
+    sources = scrapy.Field()
+    count = scrapy.Field()
