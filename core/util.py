@@ -4,6 +4,7 @@ import inspect
 import os
 from urllib import parse
 import hashlib
+import socket
 
 
 def md5(text):
@@ -42,3 +43,12 @@ def url_query(url):
 def package(name, path):
     _package = sys.modules[name].__package__
     return '%s.%s' % (_package, path)
+
+
+def service_ready(ip, port):
+    try:
+        _socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        _socket.connect((ip, port))
+        return True
+    except:
+        return False

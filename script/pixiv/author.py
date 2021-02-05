@@ -1,18 +1,17 @@
 from core import CoreSpider
 from scrapy import Spider, Request, FormRequest
 import os
-from core.runtime import Setting
+from core.setting import Settings
 from scrapy.http.response.html import HtmlResponse
 from urllib.parse import urlparse, parse_qsl, urlencode
 import demjson
-from .items import AuthorItem, TaskMetaItem, TaskNovelItem, TaskWorkItem, SourceItem
+from .items import AuthorItem, TaskMetaItem, TaskNovelItem, TaskIllustItem
 import demjson
 from core.util import list_chunks
 from ..pixiv import file_space, novel_format, novel_bind_image, Runtime
 import re
 import math
-from ..pixiv.core.databases import DatabaseUtil, WorkTable
-from sqlalchemy import select
+from .persistence import PixivPersistence
 
 
 class Script(CoreSpider):
@@ -25,27 +24,32 @@ class Script(CoreSpider):
             'CONCURRENT_REQUESTS': 100,
             # 'LOG_LEVEL': 'ERROR',
 
-            # 'LOG_ENABLED': True,
-            'FILES_STORE': os.path.join(Runtime.path().get("FILES_STORE"), 'author'),
+            'LOG_ENABLED': True,
+            'FILES_STORE': Settings.namespace("pixiv").space("author"),
             'DOWNLOADER_MIDDLEWARES': {
-                'script.pixiv.pipelines.ProxyMiddleware': 100,
+                'core.pipelines.ProxyMiddleware': 100,
             },
             'ITEM_PIPELINES': {
                 'script.pixiv.pipelines.TaskPipeline': 90
             },
         }
 
-    @classmethod
-    def start_requests(cls):
-        cls._engine = DatabaseUtil.init("pixiv_space")
+    def start_requests(self):
+        self.persistence = PixivPersistence("pixiv_space")
+        # cls._engine = DatabaseUtil.init("pixiv_space")
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
             'Accept-Language': 'zh-CN',
         }
-        _cookies = Setting.space("pixiv.runtime").parameter("cookies.json").json()
+        # print("qe")
 
+        # _cookies = Setting.space("pixiv.runtime").parameter("cookies.json").json()
+        _cookies = Settings.namespace("pixiv").runtime("cookies")
+        #
         urls = [
             # 'https://www.pixiv.net/users/20037523',
+            # 'https://www.pixiv.net/users/6916534',
+            'https://www.pixiv.net/users/19295557',
             # 'https://www.pixiv.net/users/17918526',
             # 'https://www.pixiv.net/users/30853870',
             # 'https://www.pixiv.net/users/40739400',
@@ -97,12 +101,13 @@ class Script(CoreSpider):
             # 'https://www.pixiv.net/users/18261283',
             # 'https://www.pixiv.net/users/26495687',
             # 'https://www.pixiv.net/users/8587823',
-            'https://www.pixiv.net/users/18638215'
+            # 'https://www.pixiv.net/users/18638215'
         ]
 
         for _url in urls:
-            cls._logger.info("Task Url %s" % _url)
-            yield Request(url=_url, callback=cls.analysis, headers=headers, cookies=_cookies)
+            self.logger.info("Task Url %s" % _url)
+            # cls._logger.info("Task Url %s" % _url)
+            yield Request(url=_url, callback=self.analysis, headers=headers, cookies=_cookies)
 
         # _user = 25013373
         # _authors = "https://www.pixiv.net/ajax/user/%s/following?offset=0&limit=24&rest=show&tag=&lang=zh" % _user
@@ -111,71 +116,81 @@ class Script(CoreSpider):
         #     "follow_user": _user
         # })
 
-    @classmethod
-    def authors(cls, response: HtmlResponse):
-        _detail = demjson.decode(response.text)['body']
-        _total = int(_detail['total'])
-        _page_count = math.ceil(_total / 24)
-        for _index in range(1, _page_count):
-            _offset = _index * 24
-            _author_page = "https://www.pixiv.net/ajax/user/%s/following?offset=%s&limit=24&rest=show&tag=&lang=zh" % (response.meta['follow_user'], _offset)
-            yield Request(url=_author_page, callback=cls.author_work, meta=response.meta)
+    # def authors(cls, response: HtmlResponse):
+    #     _detail = demjson.decode(response.text)['body']
+    #     _total = int(_detail['total'])
+    #     _page_count = math.ceil(_total / 24)
+    #     for _index in range(1, _page_count):
+    #         _offset = _index * 24
+    #         _author_page = "https://www.pixiv.net/ajax/user/%s/following?offset=%s&limit=24&rest=show&tag=&lang=zh" % (response.meta['follow_user'], _offset)
+    #         yield Request(url=_author_page, callback=cls.author_work, meta=response.meta)
+    #
+    # def author_work(cls, response: HtmlResponse):
+    #     _detail = demjson.decode(response.text)['body']
+    #     for _user in _detail['users']:
+    #         _work = 'https://www.pixiv.net/users/%s' % _user['userId']
+    #         cls._logger.info("Task Url %s" % _work)
+    #         yield Request(url=_work, callback=cls.analysis, meta=response.meta)
 
-    @classmethod
-    def author_work(cls, response: HtmlResponse):
-        _detail = demjson.decode(response.text)['body']
-        for _user in _detail['users']:
-            _work = 'https://www.pixiv.net/users/%s' % _user['userId']
-            cls._logger.info("Task Url %s" % _work)
-            yield Request(url=_work, callback=cls.analysis, meta=response.meta)
-
-    @classmethod
-    def analysis(cls, response: HtmlResponse):
+    def analysis(self, response: HtmlResponse):
         url = urlparse(response.url)
         id = url.path.replace('/users/', '')
-        cls._logger.info("Author Id : %s" % id)
+        self.logger.info("Author Id : %s" % id)
         data_all = 'https://www.pixiv.net/ajax/user/%s/profile/all' % id
-        cls._logger.info("Item Url  : %s" % data_all)
+        self.logger.info("Item Url  : %s" % data_all)
         _meta_content = response.xpath('//meta[@id="meta-preload-data"]/@content').extract_first()
         _meta = demjson.decode(_meta_content)
-        yield Request(url=data_all, callback=cls.works, meta={
+        yield Request(url=data_all, callback=self.works, meta={
             "id": id
         })
 
-    @classmethod
-    def works(cls, response: HtmlResponse):
+    def works(self, response: HtmlResponse):
         _detail = demjson.decode(response.text)['body']
 
-        _space = cls.settings().get('FILES_STORE')
+        # _space = cls.settings().get('FILES_STORE')
 
         illusts = list(_detail['illusts'])
         mangas = list(_detail['manga'])
         novels = list(_detail['novels'])
 
-        cls._logger.info("Illusts    Total :%s" % len(illusts))
-        cls._logger.info("Mangas     Total :%s" % len(mangas))
-        cls._logger.info("Novels     Total :%s" % len(novels))
-        cls._logger.info("ALL        Total :%s" % (len(illusts) + len(mangas) + len(novels)))
+        self.logger.info("Illusts    Total :%s" % len(illusts))
+        self.logger.info("Mangas     Total :%s" % len(mangas))
+        self.logger.info("Novels     Total :%s" % len(novels))
+        self.logger.info("ALL        Total :%s" % (len(illusts) + len(mangas) + len(novels)))
 
-        with cls._engine.connect() as _connect:
-            _has = select([WorkTable.columns.id]).where(WorkTable.columns.id.in_(illusts)).where(WorkTable.columns.is_del == 0).where(WorkTable.columns.type == "illust")
-            _data = _connect.execute(_has)
-            _diff_illusts = set(illusts).difference([item[0] for item in _data])
-            cls._logger.info("Illusts  Skip  Total :%s" % _diff_illusts)
+        _diff_illusts = set(illusts)
+        _diff_mangas = set(mangas)
+        _diff_novels = set(novels)
 
-        with cls._engine.connect() as _connect:
-            _has = select([WorkTable.columns.id]).where(WorkTable.columns.id.in_(mangas)).where(WorkTable.columns.is_del == 0).where(WorkTable.columns.type == "illust")
-            _data = _connect.execute(_has)
-            _diff_mangas = set(mangas).difference([item[0] for item in _data])
+        _illusts_ids = self.persistence.filter(illusts, 'illust')
+        _mangas_ids = self.persistence.filter(mangas, 'illust')
+        _novels_ids = self.persistence.filter(novels, 'novel')
 
-            cls._logger.info("Mangas  Skip    Total :%s" % mangas)
+        # print(_illusts_ids)
+        # print(_mangas_ids)
+        # print(_novels_ids)
 
-        with cls._engine.connect() as _connect:
-            _has = select([WorkTable.columns.id]).where(WorkTable.columns.id.in_(novels)).where(WorkTable.columns.is_del == 0).where(WorkTable.columns.type == "novel")
-            _data = _connect.execute(_has)
-            _diff_novels = set(novels).difference([item[0] for item in _data])
+        # self.persistence.
 
-            cls._logger.info("Novels   Skip  Total :%s" % _diff_novels)
+        # with cls._engine.connect() as _connect:
+        #     _has = select([WorkTable.columns.id]).where(WorkTable.columns.id.in_(illusts)).where(WorkTable.columns.is_del == 0).where(WorkTable.columns.type == "illust")
+        #     _data = _connect.execute(_has)
+        #     _diff_illusts = set(illusts).difference([item[0] for item in _data])
+        #     cls._logger.info("Illusts  Skip  Total :%s" % _diff_illusts)
+        #
+        # with cls._engine.connect() as _connect:
+        #     _has = select([WorkTable.columns.id]).where(WorkTable.columns.id.in_(mangas)).where(WorkTable.columns.is_del == 0).where(WorkTable.columns.type == "illust")
+        #     _data = _connect.execute(_has)
+        #     _diff_mangas = set(mangas).difference([item[0] for item in _data])
+        #
+        #     cls._logger.info("Mangas  Skip    Total :%s" % mangas)
+        #
+        # with cls._engine.connect() as _connect:
+        #     _has = select([WorkTable.columns.id]).where(WorkTable.columns.id.in_(novels)).where(WorkTable.columns.is_del == 0).where(WorkTable.columns.type == "novel")
+        #     _data = _connect.execute(_has)
+        #     _diff_novels = set(novels).difference([item[0] for item in _data])
+        #
+        #     cls._logger.info("Novels   Skip  Total :%s" % _diff_novels)
 
         for illust_indexs in list_chunks(list(_diff_illusts), 48):
             params = {
@@ -187,7 +202,7 @@ class Script(CoreSpider):
                 response.meta['id'],
                 urlencode(params, True)
             )
-            yield Request(url=work_meta, callback=cls.work_meta, meta=response.meta)
+            yield Request(url=work_meta, callback=self.work_meta, meta=response.meta)
 
         for manga_indexs in list_chunks(list(_diff_mangas), 48):
             params = {
@@ -199,30 +214,29 @@ class Script(CoreSpider):
                 response.meta['id'],
                 urlencode(params, True)
             )
-            yield Request(url=work_meta, callback=cls.work_meta, meta=response.meta)
+            yield Request(url=work_meta, callback=self.work_meta, meta=response.meta)
 
         for novel_indexs in _diff_novels:
             novel_url = 'https://www.pixiv.net/ajax/novel/%s' % novel_indexs
 
             response.meta['id'] = novel_indexs
-            yield Request(url=novel_url, callback=cls.novels_meta, meta=response.meta)
+            yield Request(url=novel_url, callback=self.novels_meta, meta=response.meta)
 
-    @classmethod
-    def work_meta(cls, response: HtmlResponse):
+    def work_meta(self, response: HtmlResponse):
         work_meta = demjson.decode(response.text)['body']['works']
 
         for _item in work_meta.values():
-            artworks = 'https://www.pixiv.net/ajax/illust/%s' % _item['illustId']
-            referer = 'https://www.pixiv.net/artworks/%s' % _item['illustId']
-            cls._logger.info("Illust Title :%s" % _item['illustTitle'])
-            yield Request(url=artworks, callback=cls.work_detail, meta=response.meta, headers={
+            artworks = 'https://www.pixiv.net/ajax/illust/%s' % _item['id']
+            referer = 'https://www.pixiv.net/artworks/%s' % _item['id']
+            self.logger.info("Illust Title :%s" % _item['title'])
+            yield Request(url=artworks, callback=self.work_detail, meta=response.meta, headers={
                 'Referer': referer
             })
 
-    @classmethod
-    def work_detail(cls, response: HtmlResponse):
+    #
+    def work_detail(self, response: HtmlResponse):
         work_detail = demjson.decode(response.text)['body']
-        _work_task_item = TaskWorkItem()
+        _work_task_item = TaskIllustItem()
         _work_task_item['id'] = work_detail['illustId']
         _work_task_item['title'] = work_detail['illustTitle']
         _work_task_item['description'] = work_detail['description']
@@ -232,49 +246,53 @@ class Script(CoreSpider):
             tag['tag']
             for tag in work_detail['tags']['tags']
         ]
-
+        #
         _author_item = AuthorItem()
         _author_item['id'] = work_detail['userId']
         _author_item['name'] = work_detail['userName']
 
         _work_task_item['author'] = _author_item
-        _work_task_item['source'] = SourceItem()
-        _work_task_item['space'] = file_space(_work_task_item)
-        response.meta['task'] = _work_task_item
 
+        # self.logger.info(_work_task_item)
+        # print(_work_task_item['sources'])
+
+        # _work_task_item['source'] = SourceItem()
+        # _work_task_item['space'] = file_space(_work_task_item)
+        response.meta['task'] = _work_task_item
+        #
         if work_detail['illustType'] == 2:
             _work_task_item['type'] = 'ugoira'
             _work_url = 'https://www.pixiv.net/ajax/illust/%s/ugoira_meta' % work_detail['illustId']
-            yield Request(url=_work_url, meta=response.meta, callback=cls.ugoira_source)
+            yield Request(url=_work_url, meta=response.meta, callback=self.ugoira_source)
 
         if work_detail['illustType'] != 2:
             _work_task_item['type'] = 'illust'
 
             _work_url = 'https://www.pixiv.net/ajax/illust/%s/pages' % work_detail['illustId']
-            yield Request(url=_work_url, meta=response.meta, callback=cls.illust_source)
+            yield Request(url=_work_url, meta=response.meta, callback=self.illust_source)
 
-    @classmethod
-    def illust_source(cls, response: HtmlResponse):
+    #
+    def illust_source(self, response: HtmlResponse):
         source_datas = demjson.decode(response.text)['body']
         item = response.meta['task']
-        item['source']['sources'] = [
+        item['sources'] = [
             source['urls']['original']
             for source in source_datas
         ]
         yield item
 
-    @classmethod
-    def ugoira_source(cls, response: HtmlResponse):
+    #
+    def ugoira_source(self, response: HtmlResponse):
         source_data = demjson.decode(response.text)['body']
         item = response.meta['task']
-        item['source']['sources'] = [
+        item['sources'] = [
             source_data['originalSrc'],
             source_data['src']
         ]
         yield item
 
-    @classmethod
-    def novels_meta(cls, response: HtmlResponse):
+    #
+    def novels_meta(self, response: HtmlResponse):
         _novel_meta = demjson.decode(response.text)['body']
         _author_item = AuthorItem()
         _author_item['id'] = _novel_meta['userId']
@@ -294,14 +312,10 @@ class Script(CoreSpider):
             for tag in _novel_meta['tags']['tags']
         ]
 
-        source_item = SourceItem()
-        source_item['type'] = 'novel'
-        source_item['url'] = response.url
-        source_item['sources'] = [
+        _work_task_item['sources'] = [
             _novel_meta['coverUrl']
         ]
-        _work_task_item['source'] = source_item
-        _work_task_item['space'] = file_space(_work_task_item)
+
         _search_pixiv_images = re.search(r'\[pixivimage:(.*?)\]', _novel_meta['content'], re.M | re.I)
         if _search_pixiv_images is not None:
             params = {
@@ -315,20 +329,47 @@ class Script(CoreSpider):
             headers = {
                 'referer': 'https://www.pixiv.net/novel/show.php?id=%s' % _novel_meta['id']
             }
-            response.meta['item'] = _work_task_item
-            yield Request(url=pixivimage_meta, callback=cls.novels_detail, meta=response.meta, headers=headers)
+            response.meta['task'] = _work_task_item
+            yield Request(url=pixivimage_meta, callback=self.novels_detail, meta=response.meta, headers=headers)
         else:
             yield _work_task_item
+        # self.logger.info(_work_task_item)
+        # source_item = SourceItem()
+        # source_item['type'] = 'novel'
+        # source_item['url'] = response.url
+        # source_item['sources'] = [
+        #     _novel_meta['coverUrl']
+        # ]
+        # _work_task_item['source'] = source_item
+        # _work_task_item['space'] = file_space(_work_task_item)
+        # _search_pixiv_images = re.search(r'\[pixivimage:(.*?)\]', _novel_meta['content'], re.M | re.I)
+        # if _search_pixiv_images is not None:
+        #     params = {
+        #         'id[]': _search_pixiv_images.groups(),
+        #         'lang': 'zh'
+        #     }
+        #     pixivimage_meta = 'https://www.pixiv.net/ajax/novel/%s/insert_illusts?%s' % (
+        #         _novel_meta['id'],
+        #         urlencode(params, True)
+        #     )
+        #     headers = {
+        #         'referer': 'https://www.pixiv.net/novel/show.php?id=%s' % _novel_meta['id']
+        #     }
+        #     response.meta['item'] = _work_task_item
+        #     yield Request(url=pixivimage_meta, callback=self.novels_detail, meta=response.meta, headers=headers)
+        # else:
+        #     yield _work_task_item
 
-    @classmethod
-    def novels_detail(cls, response: HtmlResponse):
+    #
+    # @classmethod
+    def novels_detail(self, response: HtmlResponse):
         _novel_meta = demjson.decode(response.text)['body']
-        _work_task_item = response.meta['item']
+        _work_task_item = response.meta['task']
         _bind_images = {}
         for id, _detail in _novel_meta.items():
             if _detail['illust'] is not None:
                 _bind_images[id] = _detail['illust']['images']['original'].split('/')[-1]
-                _work_task_item['source']['sources'].append(_detail['illust']['images']['original'])
+                _work_task_item['sources'].append(_detail['illust']['images']['original'])
         _work_task_item['content'] = novel_bind_image(_work_task_item['content'], _bind_images)
         yield _work_task_item
 

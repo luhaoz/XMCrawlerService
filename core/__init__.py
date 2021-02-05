@@ -7,16 +7,17 @@ from logging import Logger
 from pydispatch import dispatcher
 from scrapy import signals
 from .database import CoreDataSpace, DataSpaces
+from .persistence import CorePersistence
+from typing import Optional
 
 
 class CoreSpider(Spider, ABC):
-    _logger: Logger = None
-    __arguments = None
 
     def __init__(self):
         Spider.__init__(self, name=self.__class__.script_name())
-        self.__class__._logger = logger(self.__class__.script_name())
-        dispatcher.connect(self.spider_closed, signals.spider_closed)
+        dispatcher.connect(self.__spider_opened, signals.spider_opened)
+        dispatcher.connect(self.__spider_closed, signals.spider_closed)
+        self.persistence: Optional[CorePersistence] = None
 
     @classmethod
     def arguments(cls, parser):
@@ -30,5 +31,8 @@ class CoreSpider(Spider, ABC):
     def settings(cls):
         return {}
 
-    def spider_closed(self, spider):
-        self.__class__._logger.info("爬虫结束")
+    def __spider_closed(self, spider):
+        self.logger.info("爬虫结束")
+
+    def __spider_opened(self, spider):
+        self.logger.info("爬虫开始")

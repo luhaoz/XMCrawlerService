@@ -1,4 +1,5 @@
 /docker/database/data
+/docker/minio/datas
 /.idea
 __pycache__
 /space

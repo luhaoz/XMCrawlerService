@@ -3,8 +3,12 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.dialects.mysql import insert
 from sqlalchemy import MetaData
+
 import hashlib
 from sqlalchemy.dialects.mysql import LONGTEXT, MEDIUMINT
+from sqlalchemy_utils import database_exists, create_database
+
+import os
 
 metadata = MetaData()
 
@@ -93,19 +97,16 @@ NovelTable = Table(
     Index("is_del_index", "is_del"),
 )
 
-# _db_host = "localhost"
-_db_host = "172.16.238.10"
-_mysql_url = "mysql+pymysql://root:scrapy_db@%s:3306" % _db_host
-
 
 class DatabaseUtil(object):
     @classmethod
     def init(cls, database_name):
-        engine_default = create_engine(_mysql_url)
-        conn = engine_default.connect()
-        conn.execute("COMMIT")
-        conn.execute("CREATE DATABASE IF NOT EXISTS %s" % database_name)
-        conn.close()
+        _db_host = os.environ.get('MYSQL_SERVICE')
+        _mysql_url = "mysql+pymysql://root:scrapy_db@%s:3306" % _db_host
+
         _engine = create_engine("%s/%s" % (_mysql_url, database_name))
+        if not database_exists(_engine.url):
+            create_database(_engine.url)
         metadata.create_all(_engine)
+        print(_engine)
         return _engine
