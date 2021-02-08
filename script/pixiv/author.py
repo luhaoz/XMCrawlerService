@@ -21,8 +21,8 @@ class Script(CoreSpider):
     def settings(cls):
         return {
             # 'AUTOTHROTTLE_ENABLED': True,
-            'CONCURRENT_REQUESTS': 100,
-            # 'LOG_LEVEL': 'ERROR',
+            'CONCURRENT_REQUESTS': 1,
+            'LOG_LEVEL': 'DEBUG',
 
             'LOG_ENABLED': True,
             'FILES_STORE': Settings.namespace("pixiv").space("author"),
@@ -158,13 +158,13 @@ class Script(CoreSpider):
         self.logger.info("Novels     Total :%s" % len(novels))
         self.logger.info("ALL        Total :%s" % (len(illusts) + len(mangas) + len(novels)))
 
-        _diff_illusts = set(illusts)
-        _diff_mangas = set(mangas)
-        _diff_novels = set(novels)
+        # _diff_illusts = set(illusts)
+        # _diff_mangas = set(mangas)
+        # _diff_novels = set(novels)
 
-        _illusts_ids = self.persistence.filter(illusts, 'illust')
-        _mangas_ids = self.persistence.filter(mangas, 'illust')
-        _novels_ids = self.persistence.filter(novels, 'novel')
+        _diff_illusts = self.persistence.filter(illusts, 'illust')
+        _diff_mangas = self.persistence.filter(mangas, 'illust')
+        _diff_novels = self.persistence.filter(novels, 'novel')
 
         # print(_illusts_ids)
         # print(_mangas_ids)
@@ -203,7 +203,6 @@ class Script(CoreSpider):
                 urlencode(params, True)
             )
             yield Request(url=work_meta, callback=self.work_meta, meta=response.meta)
-
         for manga_indexs in list_chunks(list(_diff_mangas), 48):
             params = {
                 'ids[]': manga_indexs,
