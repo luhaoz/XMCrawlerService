@@ -9,12 +9,31 @@ from datetime import datetime
 from scrapy.utils.misc import md5sum
 import time
 
+from io import BytesIO
+
 
 class ProxyMiddleware(object):
     def process_request(self, request, spider):
         pass
         # request.meta['proxy'] = "http://host.docker.internal:%s" % os.environ.get("PROXY_PORT")
-        # request.meta['proxy'] = "http://127.0.0.1:10809"
+        # request.meta['proxy'] = "http://127.0.0.1:10811"
+
+
+class ZipPackageStore(object):
+    def __init__(self, basedir):
+        self.__basedir = basedir
+
+    def persist_file(self, path, buf, info, meta=None, headers=None):
+        print(path, buf)
+        return
+        # # return threads.deferToThread(self.__threads_persist_file, path, buf, info, meta, headers)
+        # return self.__threads_persist_file(path, buf, info, meta, headers)
+
+    def stat_file(self, path, info):
+        print(path, info)
+        return {}
+        # # return threads.deferToThread(self.__threads_stat_file, path, info)
+        # return self.__threads_stat_file(path, info)
 
 
 class ZipFilesStore(object):

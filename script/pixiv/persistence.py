@@ -127,8 +127,11 @@ class PixivPersistence(CorePersistence):
     def filter(self, ids: List, group: str):
         with self.__engine.connect() as _connect:
             _has = select([WorkTable.columns.id]).where(WorkTable.columns.id.in_(ids)).where(WorkTable.columns.is_del == 0).where(WorkTable.columns.type == group)
+
             _data = _connect.execute(_has)
-            _diff_ids = set(ids).difference([item[0] for item in _data])
+            _has_ids = [item[0] for item in _data]
+            print(_has_ids)
+            _diff_ids = set(ids).difference(_has_ids)
             return _diff_ids
 
     def save(self, item):
