@@ -42,8 +42,8 @@ services:
       - db
     tty: true
     build:
-      context: ./docker
-      dockerfile: python
+      context: .
+      dockerfile: docker/python
     environment:
       MYSQL_SERVICE: db
       SPIDER_RUNTIME: ./runtime
