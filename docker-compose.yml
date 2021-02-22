@@ -37,27 +37,27 @@ services:
     networks:
       app_net:
         ipv4_address: 172.16.238.20
-  scrapy:
-    depends_on:
-      - db
-    tty: true
-    build:
-      context: .
-      dockerfile: docker/python
-    environment:
-      MYSQL_SERVICE: db
-      SPIDER_RUNTIME: ./runtime
-      SPIDER_SPACE: ./space
-      PROXY_PORT: 10809
-    volumes:
-      - ./space:/data/space
-      - ./runtime:/data/runtime
-      - .:/app
-      - ./docker/scrapy/ca-certificates:/usr/local/share/ca-certificates
-      - ./docker/scrapy/hosts:/etc/hosts
-    networks:
-      app_net:
-        ipv4_address: 172.16.238.25
+  # scrapy:
+  #   depends_on:
+  #     - db
+  #   tty: true
+  #   build:
+  #     context: .
+  #     dockerfile: docker/python
+  #   environment:
+  #     MYSQL_SERVICE: db
+  #     SPIDER_RUNTIME: ./runtime
+  #     SPIDER_SPACE: ./space
+  #     PROXY_PORT: 10809
+  #   volumes:
+  #     - ./space:/data/space
+  #     - ./runtime:/data/runtime
+  #     - .:/app
+  #     - ./docker/scrapy/ca-certificates:/usr/local/share/ca-certificates
+  #     - ./docker/scrapy/hosts:/etc/hosts
+  #   networks:
+  #     app_net:
+  #       ipv4_address: 172.16.238.25
 networks:
   app_net:
     ipam:

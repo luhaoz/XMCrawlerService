@@ -17,7 +17,7 @@ import script.pixiv.author
 from core.util import service_ready
 import time
 from script.pixiv.core.databases import DatabaseUtil
-
+import os
 
 def crawl_run(spider: CoreSpider):
     process = CrawlerProcess(spider.settings())
@@ -26,9 +26,9 @@ def crawl_run(spider: CoreSpider):
 
 
 if __name__ == '__main__':
-    # os.environ["SPIDER_RUNTIME"] = "runtime"
-    # os.environ["SPIDER_SPACE"] = "space"
-    # os.environ["MYSQL_SERVICE"] = "127.0.0.1"
+    os.environ["SPIDER_RUNTIME"] = "runtime"
+    os.environ["SPIDER_SPACE"] = os.path.join("E:\\space")
+    os.environ["MYSQL_SERVICE"] = "127.0.0.1"
 
     # DatabaseUtil.init("pixiv")
     #
