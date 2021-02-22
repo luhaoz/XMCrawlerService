@@ -52,8 +52,13 @@ class TaskPipeline(ZipFilesPipeline):
         space = info.spider.settings.get('FILES_STORE')
         donwalod_space = os.path.abspath(os.path.join(space, _package_path))
 
+        last = 10
         while zipfile.is_zipfile(donwalod_space) is False:
-            time.sleep(0.5)
+            print("%s is no zip " % donwalod_space)
+            time.sleep(1)
+            last -= 1
+            if last <= 0:
+                raise DropItem("Error : %s-%s" % (item['title'], item['id']))
 
         with ZipUtil(donwalod_space) as _zip_file:
             if isinstance(item, TaskNovelItem):

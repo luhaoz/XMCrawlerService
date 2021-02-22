@@ -5,6 +5,7 @@ import os
 from urllib import parse
 import hashlib
 import socket
+import emoji
 
 
 def md5(text):
@@ -31,7 +32,10 @@ def path_format(path: str):
         ('|', '_'),
         ('\t', '_'),
     ]
+
+    path = emoji.demojize(path)
     for filter_ele in r_dir_filter:
+
         path = path.replace(filter_ele[0], filter_ele[1])
     return path
 
