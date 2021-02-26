@@ -35,6 +35,7 @@ class Script(CoreSpider):
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36',
         }
 
+        _cookies = Settings.namespace("iwara").runtime("cookies")
         _users = [
             "delta2018w",
             "Ciel_xxx",
@@ -46,11 +47,26 @@ class Script(CoreSpider):
             "StrangerMMD",
 
         ]
-        _cookies = Settings.namespace("iwara").runtime("cookies")
+
         for _user in _users:
             _url = "https://ecchi.iwara.tv/users/%s/videos" % _user
             yield Request(url=_url, callback=cls.authors, cookies=_cookies, headers=headers)
-            break
+
+        _following = "https://ecchi.iwara.tv/users/luhaoz/following"
+        yield Request(url=_following, callback=cls.following, cookies=_cookies, headers=headers)
+
+    @classmethod
+    def following(cls, response: HtmlResponse):
+        _users = response.xpath('//*[contains(@class,"username")]/@href').extract()
+        for _user in _users:
+            _user_url = "https://ecchi.iwara.tv%s" % _user
+            yield Request(url=_user_url, callback=cls.authors)
+
+        _next_page = response.xpath('//*[contains(@class,"pager-next")]/a/@href').extract_first()
+        if _next_page is not None:
+            _user_next_url = "https://ecchi.iwara.tv%s" % _next_page
+            print(_user_next_url)
+            yield Request(url=_user_next_url, callback=cls.following)
 
     @classmethod
     def authors(cls, response: HtmlResponse):
