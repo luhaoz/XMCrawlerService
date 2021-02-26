@@ -1,7 +1,7 @@
 from core import CoreSpider
 from scrapy import Spider, Request, FormRequest
 import os
-from core.runtime import Setting
+from core.setting import Settings
 from scrapy.http.response.html import HtmlResponse
 import demjson
 from .items import AuthorItem, TaskVideoItem, FileSourceItem
@@ -15,26 +15,16 @@ class Script(CoreSpider):
     @classmethod
     def settings(cls):
         return {
-            # https://www.pixiv.net/users/46811099
             # 'AUTOTHROTTLE_ENABLED': True,
             'CONCURRENT_REQUESTS': 10,
             'LOG_LEVEL': 'DEBUG',
-            'AWS_ACCESS_KEY_ID': "minio",
-            'AWS_SECRET_ACCESS_KEY': "minio123",
-            'AWS_USE_SSL': False,
-            # 'AWS_VERIFY': False,
-            "AWS_ENDPOINT_URL": "http://127.0.0.1:9000",
             'LOG_ENABLED': True,
-            'FILES_STORE': "s3://iwara/",
-            'DOWNLOADER_MIDDLEWARES': {
-                'core.pipelines.ProxyMiddleware': 100,
-            },
+            'FILES_STORE': Settings.namespace("iwara").space("author"),
+            # 'DOWNLOADER_MIDDLEWARES': {
+            #     'core.pipelines.ProxyMiddleware': 100,
+            # },
             'ITEM_PIPELINES': {
-                # 'script.iwara.pipelines.OSSTaskPipelin': 90
                 'script.iwara.pipelines.TaskPipeline': 90
-                # 'script.iwara.pipelines.TaskPipeline2': 90
-                # 'script.iwara.pipelines.TaskPipeline3': 90
-                # 'scrapy.pipelines.files.S3FilesStore': 1
             },
         }
 
@@ -45,21 +35,38 @@ class Script(CoreSpider):
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36',
         }
 
+        _cookies = Settings.namespace("iwara").runtime("cookies")
         _users = [
             "delta2018w",
             "Ciel_xxx",
             "erenarin",
             "黑叶冥",
             "xiaodidi09",
-            "deepkiss"
+            "deepkiss",
+            "aniMMage",
+            "StrangerMMD",
+
         ]
-        print(_users)
-        _cookies = Setting.space("iwara.runtime").parameter("cookies.json").json()
 
         for _user in _users:
             _url = "https://ecchi.iwara.tv/users/%s/videos" % _user
             yield Request(url=_url, callback=cls.authors, cookies=_cookies, headers=headers)
-            break
+
+        _following = "https://ecchi.iwara.tv/users/luhaoz/following"
+        yield Request(url=_following, callback=cls.following, cookies=_cookies, headers=headers)
+
+    @classmethod
+    def following(cls, response: HtmlResponse):
+        _users = response.xpath('//*[contains(@class,"username")]/@href').extract()
+        for _user in _users:
+            _user_url = "https://ecchi.iwara.tv%s" % _user
+            yield Request(url=_user_url, callback=cls.authors)
+
+        _next_page = response.xpath('//*[contains(@class,"pager-next")]/a/@href').extract_first()
+        if _next_page is not None:
+            _user_next_url = "https://ecchi.iwara.tv%s" % _next_page
+            print(_user_next_url)
+            yield Request(url=_user_next_url, callback=cls.following)
 
     @classmethod
     def authors(cls, response: HtmlResponse):
