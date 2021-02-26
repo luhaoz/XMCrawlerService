@@ -1,7 +1,7 @@
 from core import CoreSpider
 from scrapy import Spider, Request, FormRequest
 import os
-from core.runtime import Setting
+from core.setting import Settings
 from scrapy.http.response.html import HtmlResponse
 import demjson
 from .items import AuthorItem, TaskVideoItem, FileSourceItem
@@ -15,26 +15,16 @@ class Script(CoreSpider):
     @classmethod
     def settings(cls):
         return {
-            # https://www.pixiv.net/users/46811099
             # 'AUTOTHROTTLE_ENABLED': True,
             'CONCURRENT_REQUESTS': 10,
             'LOG_LEVEL': 'DEBUG',
-            'AWS_ACCESS_KEY_ID': "minio",
-            'AWS_SECRET_ACCESS_KEY': "minio123",
-            'AWS_USE_SSL': False,
-            # 'AWS_VERIFY': False,
-            "AWS_ENDPOINT_URL": "http://127.0.0.1:9000",
             'LOG_ENABLED': True,
-            'FILES_STORE': "s3://iwara/",
-            'DOWNLOADER_MIDDLEWARES': {
-                'core.pipelines.ProxyMiddleware': 100,
-            },
+            'FILES_STORE': Settings.namespace("iwara").space("author"),
+            # 'DOWNLOADER_MIDDLEWARES': {
+            #     'core.pipelines.ProxyMiddleware': 100,
+            # },
             'ITEM_PIPELINES': {
-                # 'script.iwara.pipelines.OSSTaskPipelin': 90
                 'script.iwara.pipelines.TaskPipeline': 90
-                # 'script.iwara.pipelines.TaskPipeline2': 90
-                # 'script.iwara.pipelines.TaskPipeline3': 90
-                # 'scrapy.pipelines.files.S3FilesStore': 1
             },
         }
 
@@ -51,11 +41,12 @@ class Script(CoreSpider):
             "erenarin",
             "黑叶冥",
             "xiaodidi09",
-            "deepkiss"
-        ]
-        print(_users)
-        _cookies = Setting.space("iwara.runtime").parameter("cookies.json").json()
+            "deepkiss",
+            "aniMMage",
+            "StrangerMMD",
 
+        ]
+        _cookies = Settings.namespace("iwara").runtime("cookies")
         for _user in _users:
             _url = "https://ecchi.iwara.tv/users/%s/videos" % _user
             yield Request(url=_url, callback=cls.authors, cookies=_cookies, headers=headers)
