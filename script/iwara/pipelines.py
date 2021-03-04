@@ -6,6 +6,10 @@ from scrapy.pipelines.media import MediaPipeline
 from core import CoreSpider
 from scrapy import Spider, Request, FormRequest
 from scrapy.exceptions import DropItem
+from urllib.parse import urlparse, parse_qsl
+import os
+from core.util import path_format
+import demjson
 
 
 class TaskPipeline(FilesPipeline):
@@ -19,8 +23,8 @@ class TaskPipeline(FilesPipeline):
         _spider: CoreSpider = info.spider
         _spider.logger.info("Item : %s" % item)
 
-        for _resource in item['datas']:
-            yield Request(_resource['url'], meta={
+        for _resource in item['sources']:
+            yield Request(_resource, meta={
                 'item': item,
                 'resource': _resource
             })
@@ -28,10 +32,14 @@ class TaskPipeline(FilesPipeline):
     def file_path(self, request, response=None, info=None, *, item=None):
         _item = request.meta['item']
         _resource = request.meta['resource']
+        _parse = urlparse(_resource)
+        _query = dict(parse_qsl(_parse.query))
+        _file = "%s%s" % (_item['title'], os.path.splitext(_query['file'])[-1])
 
         resource_path = "/".join([
-            _item['space'],
-            _resource['file']
+            path_format(_item['author']['name']),
+            path_format(_item['title']),
+            _file
         ])
         return resource_path
 
@@ -41,14 +49,12 @@ class TaskPipeline(FilesPipeline):
             if ok is False:
                 _spider.logger.error("Error : %s-%s" % (item['title'], item['id']))
                 raise DropItem("Error : %s-%s" % (item['title'], item['id']))
-
-        # space = info.spider.settings.get('FILES_STORE')
-        # os.makedirs(os.path.join(space, item['space']), exist_ok=True)
-        # donwalod_space = os.path.join(space, item['space'], 'work.json')
+        _space = info.spider.settings.get('FILES_STORE')
+        donwalod_space = os.path.join(_space, path_format(item['author']['name']), path_format(item['title']), 'work.json')
         #
         # _meta = item
-        # with open(donwalod_space, 'wb') as meta:
-        #     meta.write(demjson.encode(dict(_meta), encoding="utf-8", compactly=False, indent_amount=4))
+        with open(donwalod_space, 'wb') as meta:
+            meta.write(demjson.encode(dict(item), encoding="utf-8", compactly=False, indent_amount=4))
 
-        # _spider._logger.info("Complate : %s-%s-%s" % (item['title'], item['id'], donwalod_space))
+        _spider.persistence.save(item)
         _spider.logger.info("Complate : %s-%s" % (item['title'], item['id']))
