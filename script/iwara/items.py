@@ -9,6 +9,7 @@ class CoreItem(scrapy.Item):
 
 
 class AuthorItem(CoreItem):
+    id = scrapy.Field()
     name = scrapy.Field()
 
 
@@ -16,33 +17,21 @@ class TaskMetaItem(CoreItem):
 
     def __init__(self, *args, **kwargs):
         CoreItem.__init__(self, *args, **kwargs)
-        self['datas'] = []
+        self['sources'] = []
 
     id = scrapy.Field()
     title = scrapy.Field()
     description = scrapy.Field()
     author = scrapy.Field()
     upload_date = scrapy.Field()
-    space = scrapy.Field()
-    datas = scrapy.Field()
+    sources = scrapy.Field()
+    type = scrapy.Field()
 
 
 class TaskVideoItem(TaskMetaItem):
     pass
 
 
-#
-#     def __init__(self, *args, **kwargs):
-#         CoreItem.__init__(self, *args, **kwargs)
-#         self['datas'] = []
-#
-#     datas = scrapy.Field()
-#
-#
 class FileSourceItem(CoreItem):
     url = scrapy.Field()
     file = scrapy.Field()
-#
-#
-# class ArticleTextSourceItem(CoreItem):
-#     text = scrapy.Field()
