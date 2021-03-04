@@ -82,26 +82,15 @@ class Script(CoreSpider):
         _diff_ids = self.persistence.filter(_works, "video")
 
         for _id in _diff_ids:
-            # print(_diff_ids)
-            # _item_url = "https://ecchi.iwara.tv/videos/%s" % _id
-            _item_url = "https://ecchi.iwara.tv/videos/62emjtloklhozxprz"
+            print(_diff_ids)
+            _item_url = "https://ecchi.iwara.tv/videos/%s" % _id
             print(_item_url)
             yield Request(url=_item_url, callback=self.detail)
-            break
 
-        # _next_page = response.xpath('//*[contains(@class,"pager-next")]/a/@href').extract_first()
-        # if _next_page is not None:
-        #     _url = "https://ecchi.iwara.tv%s" % _next_page
-        #     yield Request(url=_url, callback=self.authors)
-        # print(_diff_ids)
-        # _item_url = "https://ecchi.iwara.tv%s" % _item.xpath(".//h3/a/@href").extract_first()
-        # yield Request(url=_item_url, callback=cls.detail)
-        # break
-        # print(_works)
-        # _next_page = response.xpath('//*[contains(@class,"pager-next")]/a/@href').extract_first()
-        # if _next_page is not None:
-        #     _url = "https://ecchi.iwara.tv%s" % _next_page
-        #     yield Request(url=_url, callback=cls.authors)
+        _next_page = response.xpath('//*[contains(@class,"pager-next")]/a/@href').extract_first()
+        if _next_page is not None:
+            _url = "https://ecchi.iwara.tv%s" % _next_page
+            yield Request(url=_url, callback=self.authors)
 
     def detail(self, response: HtmlResponse):
         _urlparse = urlparse(response.url)

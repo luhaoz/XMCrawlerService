@@ -6,7 +6,7 @@ from multiprocessing import Process, freeze_support, Pool
 # # from script.pixiv import author
 # # from script.fanbox import author
 # from script.tstorage import users
-# import script.pixiv.author
+import script.pixiv.author
 # import script.dlsite.asmr
 import script.iwara.author
 # import script.xiami.favorites
@@ -41,7 +41,7 @@ if __name__ == '__main__':
     _pool = Pool(processes=10)
     _scripts = [
         # script.pixiv.author,
-        # script.pixiv.author,
+        script.pixiv.author,
         # script.dlsite.asmr
         # script.fanbox_subscribe.author,
         script.iwara.author,
