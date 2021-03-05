@@ -28,9 +28,15 @@ def crawl_run(spider: CoreSpider):
 
 
 if __name__ == '__main__':
-    os.environ["SPIDER_RUNTIME"] = "runtime"
-    os.environ["SPIDER_SPACE"] = os.path.join("space")
-    os.environ["MYSQL_SERVICE"] = "127.0.0.1"
+    pass
+
+    print(os.environ["SPIDER_RUNTIME"])
+    print(os.environ["SPIDER_SPACE"])
+    print(os.environ["MYSQL_SERVICE"])
+    #
+    # os.environ["SPIDER_RUNTIME"] = "runtime"
+    # os.environ["SPIDER_SPACE"] = os.path.join("space")
+    # os.environ["MYSQL_SERVICE"] = "127.0.0.1"
 
     # DatabaseUtil.init("pixiv")
     #
