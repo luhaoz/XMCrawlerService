@@ -82,7 +82,7 @@ class Script(CoreSpider):
         _diff_ids = self.persistence.filter(_works, "video")
 
         for _id in _diff_ids:
-            print(_diff_ids)
+            print(_id)
             _item_url = "https://ecchi.iwara.tv/videos/%s" % _id
             print(_item_url)
             yield Request(url=_item_url, callback=self.detail)
