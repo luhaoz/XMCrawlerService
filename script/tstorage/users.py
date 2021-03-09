@@ -1,15 +1,13 @@
 from core import CoreSpider
 from scrapy import Spider, Request, FormRequest
 import os
-from core.runtime import Setting
 from scrapy.http.response.html import HtmlResponse
 import demjson
 from .items import AuthorItem, TaskWorkItem, TstorageSourceItem
 from . import Runtime
 import re
 import math
-from core.util import path_format
-import html
+from core.setting import Settings
 
 
 class Script(CoreSpider):
@@ -26,7 +24,7 @@ class Script(CoreSpider):
             # 'LOG_LEVEL': 'ERROR',
 
             # 'LOG_ENABLED': True,
-            'FILES_STORE': os.path.join(Runtime.path().get("FILES_STORE"), 'tstorages'),
+            'FILES_STORE': Settings.namespace("tstorages").space("users"),
             # 'DOWNLOADER_MIDDLEWARES': {
             #     'script.fanbox.pipelines.ProxyMiddleware': 100,
             # },

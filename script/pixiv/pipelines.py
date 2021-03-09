@@ -9,10 +9,10 @@ import demjson
 from ..pixiv import novel_html
 from core import CoreSpider
 import time
-from core.pipelines import ZipFilesPipeline
-import zipfile
+from core.pipelines import CacheZipFilesPipeline, CacheZipPool
 from .utils import Space, Novel
 from core.ziputil import ZipUtil
+from zipfile import ZipFile, ZIP_LZMA
 
 
 class ProxyMiddleware(object):
@@ -20,7 +20,7 @@ class ProxyMiddleware(object):
         request.meta['proxy'] = "http://host.docker.internal:10809"
 
 
-class TaskPipeline(ZipFilesPipeline):
+class TaskPipeline(CacheZipFilesPipeline):
     def get_media_requests(self, item: TaskMetaItem, info: MediaPipeline.SpiderInfo):
         _spider: CoreSpider = info.spider
         _spider.logger.info("Item : %s" % item)
@@ -50,21 +50,31 @@ class TaskPipeline(ZipFilesPipeline):
         _meta_data = demjson.encode(dict(_meta), encoding="utf-8", compactly=False, indent_amount=4)
 
         space = info.spider.settings.get('FILES_STORE')
-        donwalod_space = os.path.abspath(os.path.join(space, _package_path))
 
-        last = 10
-        while zipfile.is_zipfile(donwalod_space) is False:
-            print("%s is no zip " % donwalod_space)
-            time.sleep(1)
-            last -= 1
-            if last <= 0:
-                raise DropItem("Error : %s-%s" % (item['title'], item['id']))
-
-        with ZipUtil(donwalod_space) as _zip_file:
+        _space = os.path.join(space, _package_path)
+        donwalod_space = os.path.abspath(_space)
+        _cache_zip = CacheZipPool.use(_space)
+        with ZipFile(_cache_zip, 'a') as _zip_file:
             if isinstance(item, TaskNovelItem):
-                _zip_file.replace("novel.html", novel_html(item['title'], item['content']))
-            _zip_file.replace("work.json", _meta_data)
-            _spider.logger.info("ZIP File : %s-Test" % donwalod_space)
+                _zip_file.writestr("novel.html", novel_html(item['title'], item['content']))
+            _zip_file.writestr("work.json", _meta_data)
+
+        with open(donwalod_space, 'wb') as _save_file:
+            _save_file.write(_cache_zip.getvalue())
+            CacheZipPool.remove(_space)
+        # last = 10
+        # while zipfile.is_zipfile(donwalod_space) is False:
+        #     print("%s is no zip " % donwalod_space)
+        #     time.sleep(1)
+        #     last -= 1
+        #     if last <= 0:
+        #         raise DropItem("Error : %s-%s" % (item['title'], item['id']))
+        #
+        # with ZipUtil(donwalod_space) as _zip_file:
+        #     if isinstance(item, TaskNovelItem):
+        #         _zip_file.replace("novel.html", novel_html(item['title'], item['content']))
+        #     _zip_file.replace("work.json", _meta_data)
+        #     _spider.logger.info("ZIP File : %s-Test" % donwalod_space)
         _spider.persistence.save(item)
         return _spider.logger.info("Complate : %s-%s-%s" % (item['title'], item['id'], donwalod_space))
 

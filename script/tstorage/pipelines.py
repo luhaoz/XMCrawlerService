@@ -41,7 +41,7 @@ class TaskPipeline(FilesPipeline):
 
     def get_media_requests(self, item: TstorageSourceItem, info: MediaPipeline.SpiderInfo):
         _spider: CoreSpider = info.spider
-        _spider._logger.info("Item : %s" % item)
+        _spider.logger.info("Item : %s" % item)
 
         yield FormRequest(
             url=item['url'],
@@ -51,14 +51,14 @@ class TaskPipeline(FilesPipeline):
 
     # def file_path(self, request, response=None, info=None):
 
-    def file_path(self, request, response=None, info=None):
+    def file_path(self, request, response=None, info=None, *, item=None):
         return request.meta['file']
 
     def item_completed(self, results, item: TaskMetaItem, info: MediaPipeline.SpiderInfo):
         _spider: CoreSpider = info.spider
         for ok, result in results:
             if ok is False:
-                _spider._logger.error("Error : %s-%s" % (item['file'], item['url']))
+                _spider.logger.error("Error : %s-%s" % (item['file'], item['url']))
                 raise DropItem("Error : %s-%s" % (item['file'], item['url']))
 
         # space = info.spider.settings.get('FILES_STORE')
@@ -69,4 +69,4 @@ class TaskPipeline(FilesPipeline):
         # with open(donwalod_space, 'wb') as meta:
         #     meta.write(demjson.encode(dict(_meta), encoding="utf-8", compactly=False, indent_amount=4))
 
-        _spider._logger.info("Complate : %s-%s" % (item['file'], item['url']))
+        _spider.logger.info("Complate : %s-%s" % (item['file'], item['url']))
