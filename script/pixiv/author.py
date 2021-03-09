@@ -203,6 +203,7 @@ class Script(CoreSpider):
                 urlencode(params, True)
             )
             yield Request(url=work_meta, callback=self.work_meta, meta=response.meta)
+            break
         for manga_indexs in list_chunks(list(_diff_mangas), 48):
             params = {
                 'ids[]': manga_indexs,
@@ -214,12 +215,14 @@ class Script(CoreSpider):
                 urlencode(params, True)
             )
             yield Request(url=work_meta, callback=self.work_meta, meta=response.meta)
+            break
 
         for novel_indexs in _diff_novels:
             novel_url = 'https://www.pixiv.net/ajax/novel/%s' % novel_indexs
 
             response.meta['id'] = novel_indexs
             yield Request(url=novel_url, callback=self.novels_meta, meta=response.meta)
+            break
 
     def work_meta(self, response: HtmlResponse):
         work_meta = demjson.decode(response.text)['body']['works']

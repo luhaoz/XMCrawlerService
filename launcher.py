@@ -5,7 +5,7 @@ from core import CoreSpider
 from multiprocessing import Process, freeze_support, Pool
 # # from script.pixiv import author
 # # from script.fanbox import author
-# from script.tstorage import users
+import script.tstorage.users
 import script.pixiv.author
 # import script.dlsite.asmr
 import script.iwara.author
@@ -48,6 +48,7 @@ if __name__ == '__main__':
     _scripts = [
         # script.pixiv.author,
         script.pixiv.author,
+        script.tstorage.users,
         # script.dlsite.asmr
         # script.fanbox_subscribe.author,
         script.iwara.author,

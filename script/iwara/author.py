@@ -55,8 +55,8 @@ class Script(CoreSpider):
             yield Request(url=_url, callback=self.authors, cookies=_cookies, headers=headers)
             break
 
-        # _following = "https://ecchi.iwara.tv/users/luhaoz/following"
-        # yield Request(url=_following, callback=cls.following, cookies=_cookies, headers=headers)
+        _following = "https://ecchi.iwara.tv/users/luhaoz/following"
+        yield Request(url=_following, callback=self.following, cookies=_cookies, headers=headers)
 
     def following(self, response: HtmlResponse):
         _users = response.xpath('//*[contains(@class,"username")]/@href').extract()
@@ -110,7 +110,7 @@ class Script(CoreSpider):
         _description = response.xpath("//*[contains(@class,'field-name-body')]//text()").extract()
         _item['description'] = "".join(_description)
         _text = response.xpath("//*[contains(@class,'node-info')]//*[contains(@class,'submitted')]/text()").extract()
-        _search = re.search(r"在([0-9-: ]*)提交", "".join(_text))
+        _search = re.search(r"(\d{4}-\d{2}-\d{2}.*\d{2}:\d{2})", "".join(_text))
         _item['upload_date'] = _date = _search.group(1).strip()
         _item['type'] = "video"
 
