@@ -46,12 +46,12 @@ services:
        context: .
        dockerfile: docker/python
      environment:
-       MYSQL_SERVICE: db
+       MYSQL_SERVICE: 172.16.238.10
        SPIDER_RUNTIME: /data/runtime
        SPIDER_SPACE: /data/space
        PROXY_PORT: 10809
      volumes:
-       - ./space:/data/space
+       - E:/space:/data/space
        - ./runtime:/data/runtime
        - .:/app
        - ./docker/scrapy/ca-certificates:/usr/local/share/ca-certificates
