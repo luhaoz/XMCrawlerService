@@ -109,28 +109,28 @@ class Script(CoreSpider):
             # cls._logger.info("Task Url %s" % _url)
             yield Request(url=_url, callback=self.analysis, headers=headers, cookies=_cookies)
 
-        # _user = 25013373
-        # _authors = "https://www.pixiv.net/ajax/user/%s/following?offset=0&limit=24&rest=show&tag=&lang=zh" % _user
-        # headers['Referer'] = 'https://www.pixiv.net/users/%s/following' % _user
-        # yield Request(url=_authors, callback=cls.authors, headers=headers, cookies=_cookies, meta={
-        #     "follow_user": _user
-        # })
+        _user = 25013373
+        _authors = "https://www.pixiv.net/ajax/user/%s/following?offset=0&limit=24&rest=show&tag=&lang=zh" % _user
+        headers['Referer'] = 'https://www.pixiv.net/users/%s/following' % _user
+        yield Request(url=_authors, callback=self.authors, headers=headers, cookies=_cookies, meta={
+            "follow_user": _user
+        })
 
-    # def authors(cls, response: HtmlResponse):
-    #     _detail = demjson.decode(response.text)['body']
-    #     _total = int(_detail['total'])
-    #     _page_count = math.ceil(_total / 24)
-    #     for _index in range(1, _page_count):
-    #         _offset = _index * 24
-    #         _author_page = "https://www.pixiv.net/ajax/user/%s/following?offset=%s&limit=24&rest=show&tag=&lang=zh" % (response.meta['follow_user'], _offset)
-    #         yield Request(url=_author_page, callback=cls.author_work, meta=response.meta)
-    #
-    # def author_work(cls, response: HtmlResponse):
-    #     _detail = demjson.decode(response.text)['body']
-    #     for _user in _detail['users']:
-    #         _work = 'https://www.pixiv.net/users/%s' % _user['userId']
-    #         cls._logger.info("Task Url %s" % _work)
-    #         yield Request(url=_work, callback=cls.analysis, meta=response.meta)
+    def authors(self, response: HtmlResponse):
+        _detail = demjson.decode(response.text)['body']
+        _total = int(_detail['total'])
+        _page_count = math.ceil(_total / 24)
+        for _index in range(1, _page_count):
+            _offset = _index * 24
+            _author_page = "https://www.pixiv.net/ajax/user/%s/following?offset=%s&limit=24&rest=show&tag=&lang=zh" % (response.meta['follow_user'], _offset)
+            yield Request(url=_author_page, callback=self.author_work, meta=response.meta)
+
+    def author_work(self, response: HtmlResponse):
+        _detail = demjson.decode(response.text)['body']
+        for _user in _detail['users']:
+            _work = 'https://www.pixiv.net/users/%s' % _user['userId']
+            self.logger.info("Task Url %s" % _work)
+            yield Request(url=_work, callback=self.analysis, meta=response.meta)
 
     def analysis(self, response: HtmlResponse):
         url = urlparse(response.url)
