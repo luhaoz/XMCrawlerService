@@ -46,7 +46,7 @@ services:
        context: .
        dockerfile: docker/python
      environment:
-       MYSQL_SERVICE: 172.16.238.10
+       MYSQL_SERVICE: db
        SPIDER_RUNTIME: /data/runtime
        SPIDER_SPACE: /data/space
        PROXY_PORT: 10809

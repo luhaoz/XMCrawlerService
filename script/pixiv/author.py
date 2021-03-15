@@ -20,7 +20,7 @@ class Script(CoreSpider):
     @classmethod
     def settings(cls):
         return {
-            'AUTOTHROTTLE_ENABLED': True,
+            # 'AUTOTHROTTLE_ENABLED': True,
             'CONCURRENT_REQUESTS': 10,
             'LOG_LEVEL': 'DEBUG',
 
@@ -47,6 +47,7 @@ class Script(CoreSpider):
         _cookies = Settings.namespace("pixiv").runtime("cookies")
         #
         urls = [
+            'https://www.pixiv.net/users/45847523',
             'https://www.pixiv.net/users/20037523',
             'https://www.pixiv.net/users/6916534',
             'https://www.pixiv.net/users/19295557',
@@ -203,7 +204,7 @@ class Script(CoreSpider):
                 urlencode(params, True)
             )
             yield Request(url=work_meta, callback=self.work_meta, meta=response.meta)
-            break
+            
         for manga_indexs in list_chunks(list(_diff_mangas), 48):
             params = {
                 'ids[]': manga_indexs,
@@ -215,14 +216,14 @@ class Script(CoreSpider):
                 urlencode(params, True)
             )
             yield Request(url=work_meta, callback=self.work_meta, meta=response.meta)
-            break
+            
 
         for novel_indexs in _diff_novels:
             novel_url = 'https://www.pixiv.net/ajax/novel/%s' % novel_indexs
 
             response.meta['id'] = novel_indexs
             yield Request(url=novel_url, callback=self.novels_meta, meta=response.meta)
-            break
+            
 
     def work_meta(self, response: HtmlResponse):
         work_meta = demjson.decode(response.text)['body']['works']

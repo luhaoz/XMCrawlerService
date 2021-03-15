@@ -29,7 +29,7 @@ def crawl_run(spider: CoreSpider):
 
 if __name__ == '__main__':
     pass
-
+    time.sleep(5)
     print(os.environ["SPIDER_RUNTIME"])
     print(os.environ["SPIDER_SPACE"])
     print(os.environ["MYSQL_SERVICE"])
@@ -46,14 +46,10 @@ if __name__ == '__main__':
 
     _pool = Pool(processes=10)
     _scripts = [
-        # script.pixiv.author,
         script.pixiv.author,
-        script.tstorage.users,
-        # script.dlsite.asmr
         # script.fanbox_subscribe.author,
         script.iwara.author,
-        # script.xiami.favorites,
-        # script.tstorage.users,
+        script.tstorage.users,
     ]
 
     for _script in _scripts:

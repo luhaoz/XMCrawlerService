@@ -44,6 +44,9 @@ class Script(CoreSpider):
         }
 
         _users = [
+
+            'http://tstorage.info/users/KiwiWizard',
+            'http://tstorage.info/users/rgb778899',
             'http://tstorage.info/users/_Blob_',
             'http://tstorage.info/users/Jim944',
             'http://tstorage.info/users/MrJinSenpai',
